@@ -1,1 +1,1 @@
-# This is an application that connects the doctor with healthcare partner 💊🩺.
+# Medeasy is an React native application that connects the doctor(and head manager) with healthcare partners 💊🩺.
