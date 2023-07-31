@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "769162715268",
+    "project_id": "medicine-easy-1",
+    "storage_bucket": "medicine-easy-1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:769162715268:android:8acef02dc25e89546362d1",
+        "android_client_info": {
+          "package_name": "com.medeasy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "769162715268-cffe6uh1rf0q1k467o3bfmogqg1i94ru.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5aHRK5zBPBi5MQ1WeVP6Dwddql4m2DP0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "769162715268-cffe6uh1rf0q1k467o3bfmogqg1i94ru.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

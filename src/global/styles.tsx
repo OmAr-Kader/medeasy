@@ -1,0 +1,26 @@
+import { Colors } from 'react-native/Libraries/NewAppScreen';
+
+export const BACK_DARK = Colors.darker;
+export const BACK_LIGHT = Colors.lighter;
+export const LIGHT_BLUE = '#b2c1d9';
+export const DARK_BLUE = '#1c1a2f';
+export const WHITE = '#ffffff';
+export const SHADOW_WHITE = '#00000030';
+export const WHITE_226 = '#e5e5e5';
+export const WHITE_200 = '#c8c8c8';
+export const WHITE_196 = '#c4c4c4';
+export const WHITE_165_A_30 = '#a5a5a533';
+export const GREY = '#7d7d7d';
+export const BLACK_99_A_30 = '#63636333';
+export const BLACK_55 = '#373737';
+export const BLACK_46 = '#2e2e2e';
+export const SHADOW_BLACK = '#ffffff30';
+export const BLACK_26 = '#1a1a1a';
+export const BLACK = '#000000';
+export const MAIN = '#166FC1';
+export const MAIN_PALE = '#697f94';
+export const MAIN_WHITER = '#3F98E9';
+export const GREEN_CALL = '#00a22e';
+export const GREEN_CALL_WHITER = '#36d964';
+export const RED = '#b80b12';
+export const PENDING_COLOR = '#f1b207';
