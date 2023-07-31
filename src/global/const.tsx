@@ -56,15 +56,15 @@ export const EXAMINATIONS_COLLECTION = 'examinations';
 
 export const PERSONAL_IMG = 'personalImg';
 
-export const CLIENT_ID: string = '769162715268-cffe6uh1rf0q1k467o3bfmogqg1i94ru.apps.googleusercontent.com';
-export const SERVER_API_KEY: string = 'AAAAsxWroIQ:APA91bHDoGRx01ge54_5c8RUzCROITiT9trq7mmJ0_LuEp2dUU0QX6GiiVldBHxTy8f820ajhFweILB2zl2MDq49YE6X_N6ktZFzgGkZlSNp0R4GkKPWBoMH9n5wD_fcuvucQAnx7tSY';
-export const APP_ID = '1:769162715268:android:8acef02dc25e89546362d1';
-export const API_KEY = 'AIzaSyC5aHRK5zBPBi5MQ1WeVP6Dwddql4m2DP0';
-export const DATABASE_URL = 'https://medicine-easy-1-default-rtdb.firebaseio.com';
-export const STORAGE_BUCKET = 'medicine-easy-1.appspot.com';
-export const MESSAGING_SENDER_ID = '769162715268';
-export const PROJECT_ID = 'medicine-easy-1';
-export const AUTH_DOMAIN = 'medicine-easy-1.firebaseapp.com';
+export const CLIENT_ID: string = '';
+export const SERVER_API_KEY: string = '';
+export const APP_ID = '';
+export const API_KEY = '';
+export const DATABASE_URL = '';
+export const STORAGE_BUCKET = '';
+export const MESSAGING_SENDER_ID = '';
+export const PROJECT_ID = '';
+export const AUTH_DOMAIN = '';
 
 export const CREDENTIAL_FIREBASE = {
     clientId: CLIENT_ID,
@@ -77,12 +77,12 @@ export const CREDENTIAL_FIREBASE = {
     authDomain: AUTH_DOMAIN,
 };
 
-export const ZEGO_APP_ID = 219031413;
-export const ZEGO_APP_SIGN = '36fb69a3f6504bf570e5c8825ca25c6456f062ed6a6e8c815d88fb3f7f9c2007';
-export const ZEGO_STREAM_URL = 'wss://webliveroom219031413-api.coolzcloud.com/ws';
-export const ZEGO_SERVER_SECRET =  'b1e0be9d129be11349f00c2c06b48db3';
-export const TEMP_TOKEN_2 = '04AAAAAGTGg5kAEG1rN3F4dzczdmh6N2ZmMzUAwLcNWcMk2kI66A3s+ok30azuwed0zvKtDZgIhlFH9Tjq6IqQtQFf6RiJzeyXQPHxRJXrpYBXdivf3MTX3ZmDMRiDCvKWCsfnWC9oiSdp+/03vW0aJRTP5FBggfSwd45UKh3eC2f1WgzHagJDPyMkPznMNWLfelKyVqlj6F6zedylzDRoHpHaY0NUgzyuVDxNy9WwbAJv6ZTLK7Qqt5dma/QRJ1D7WU6TkXBIntca/ftv70uz0Hn9iW7csDaKHncpyA==';
-export const TEMP_TOKEN_1 = '04AAAAAGTGg8wAEHVqaTFvb3J1bWNvMngzb28AwAGAbx4b/dfDUgQSpUw9bGeXeY7c/Gvtmt3BULY1uMS6yEwtTcErzwM8+/27pnegHsRuIhkvBGv36fyKJ09YlELKJEKg0/OKZB+YNmg32zH1yAz3hMX7OL51Hb1ehZBz1evUWkyUq8gb4Leur6KVf2oholX7JK66ro37x18o+rhRpG22838b+AfMaEH7SpBDatb+XlPDPcpW/Iy7Pdm4LR2ozPxpMzW53ERQTY+5OrF9G0ZCQ6wK28KG3MPmE6D+uQ==';
+export const ZEGO_APP_ID = 0;
+export const ZEGO_APP_SIGN = '';
+export const ZEGO_STREAM_URL = '';
+export const ZEGO_SERVER_SECRET =  '';
+export const TEMP_TOKEN_2 = '';
+export const TEMP_TOKEN_1 = '';
 
 export const CLIENT_SESSION_QUARTER = 1;
 export const CLIENT_SESSION_HALF = 2;
