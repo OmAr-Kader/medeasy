@@ -12,7 +12,7 @@ import { fetchDoctor, fetchUser, firebaseFetchAdmin } from '../../firebase/fireS
 import { DispatchWithCallback } from '../../component/selectorView/useStateWithCallback';
 import { findMultiPref, isSafeToUse } from '../../global/utils';
 import { welcome1, welcome2, welcome3 } from '../../assets';
-//An application that connects the doctor with healthcare partner
+
 const SplashScreen = ({ navigation }: { navigation: any }) => {
   const isDarkMode = FetchIsDarkMode();
 
