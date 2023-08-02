@@ -1,11 +1,13 @@
-import { Animated, Dimensions, Image, SafeAreaView, StyleSheet, Text, TouchableHighlight, View, useWindowDimensions } from 'react-native';
+import { Animated, Dimensions, Image, SafeAreaView, ScrollView, StyleSheet, Text, TouchableHighlight, View, useWindowDimensions } from 'react-native';
 import { FetchIsDarkMode } from '../../global/dims';
 import React from 'react';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import * as COL from '../../global/styles';
 import { BackArrow } from '../../assets/logo';
-import { Zoom } from 'react-native-reanimated-zoom';
+import { Zoom, createZoomListComponent } from 'react-native-reanimated-zoom';
 import { StatusBarView } from '../../global/baseView';
+
+const ZoomScrollView = createZoomListComponent(Animated.ScrollView);
 
 export const CertificatesView = ({ route, navigation }: { route: any, navigation: any }) => {
     const { isDark } = route.params;
@@ -16,7 +18,7 @@ export const CertificatesView = ({ route, navigation }: { route: any, navigation
     const [currentPage, setCurrentPage] = React.useState(0);
     const scrollX = React.useRef(new Animated.Value(0)).current;
     return <View style={StyleSheet.flatten({ width: '100%', height: '100%', backgroundColor: isDarkMode ? Colors.darker : Colors.lighter })}>
-        <Animated.ScrollView
+        <ZoomScrollView
             horizontal={true}
             pagingEnabled={true}
             showsHorizontalScrollIndicator={false}
@@ -39,7 +41,7 @@ export const CertificatesView = ({ route, navigation }: { route: any, navigation
                 </View>;
             }
             )}
-        </Animated.ScrollView>
+        </ZoomScrollView>
         <View style={styles.scrollHeaderContainer}>
             <View style={styles.headerTextCenter}>
                 <Text style={styles.doctorNameStyle}>{`${currentPage + 1} / ${doctorAuth.length}`}</Text>
