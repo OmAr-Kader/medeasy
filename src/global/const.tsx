@@ -49,8 +49,8 @@ export const EDIT_SAVE_NOT_EDITABLE_INTI_YES = 2;
 export const EDIT_SAVE_ALL_OFF_DOCTOR = 3;
 export const EDIT_SAVE_EDITABLE_INTI_YES = 1;
 
+export const FCM_DOCTOR_CONFIRM = 2;
 export const FCM_CALL = 3;
-export const FCM_DOCTOR_CONFIRM = 3;
 export const FCM_NEW_APPOINTMENT_FOR_DOCTOR = 4;
 export const FCM_TREATMENT_CHANGED = 5;
 export const FCM_APPOINTMENT_REMINDER = 6;
