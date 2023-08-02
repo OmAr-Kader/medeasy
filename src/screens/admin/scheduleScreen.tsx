@@ -5,7 +5,7 @@ import { ScrollView, StatusBar, StyleSheet, Text, TouchableHighlight, View } fro
 import * as COL from '../../global/styles';
 import * as CONST from '../../global/const'
 import Spinner from "react-native-loading-spinner-overlay";
-import MultiSwitch from "../../component/multipleSwitch";
+import MultiSwitch from '../../component/multipleSwitch/multipleSwitch';
 import { Colors } from "react-native/Libraries/NewAppScreen";
 import { AppointmentDate, AppointmentDoctor, AppointmentSack, DoctorSack, jsonToAppointmentSack } from "../../global/model";
 import { ICheckboxButtonActive, TagSelectMultiActiveController } from "../../component/selectorView/TagSelectMulti";

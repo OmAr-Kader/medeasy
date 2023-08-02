@@ -3,11 +3,13 @@ import { Image, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, View, Tex
 import { BACK_DARK, BACK_LIGHT } from './styles';
 import * as COL from '../global/styles';
 import { TouchableHighlight } from 'react-native';
-import { EditSave, Profile } from '../assets/logo';
+import { EditSave, Filter, Menus, Profile, Search } from '../assets/logo';
 import * as CONST from './const';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import Dialog from 'react-native-dialog';
 import Animated, { FadeIn, FadeOut, StretchInY, StretchOutY } from 'react-native-reanimated';
+import { Menu, MenuOption, MenuOptions, MenuProvider, MenuTrigger } from 'react-native-popup-menu';
+import { strings } from './strings';
 
 export const ProfilePic = ({ style, uri }: { style: any, uri: string }): React.JSX.Element => {
     return (
@@ -135,25 +137,70 @@ export const SeeMoreText = ({ isDarkMode, seeMoreTxt, subAfter, tittle }: { isDa
 };
 
 export const FlatListed = ({ data, emptyMessage, isDarkMode, renderItem, scrollEnabled = true, refreshControl }: { data: any[], emptyMessage: string, isDarkMode: boolean, renderItem: ListRenderItem<any>, scrollEnabled?: boolean, refreshControl?: React.ReactElement<RefreshControlProps> | undefined }): React.JSX.Element => {
+    return data.length !== 0 ? <FlatList
+        data={data}
+        scrollEnabled={scrollEnabled}
+        initialNumToRender={10} // initialNumToRender(80)
+        maxToRenderPerBatch={4}
+        windowSize={4}
+        refreshControl={refreshControl}
+        renderItem={renderItem} /> : <View style={styles.emptyListContainer}>
+        <Animated.View
+            entering={FadeIn.duration(300)}
+            exiting={FadeOut.duration(300)}
+            style={styles.animatedForEmptyList}>
+            <Text style={stylesColorful(isDarkMode).textForEmptyList}>{emptyMessage}</Text>
+        </Animated.View>
+    </View>
+}
+
+export const SearchView = ({ isDarkMode, onChangeText, onPress }: { isDarkMode: boolean, onChangeText: (text: String) => void, onPress: () => void }) => {
+    const refInput = React.useRef<TextInput>(null);
+
+    return <View style={styles.searchView}>
+        <View style={stylesColorful(isDarkMode).textInputContainer}>
+            <TouchableHighlight style={stylesColorful(isDarkMode).eyeLogo}
+                underlayColor={COL.MAIN_PALE}
+                onPress={() => {
+                    if (refInput?.current === null) {
+                        return;
+                    }
+                    if (!refInput?.current?.isFocused()) {
+                        refInput?.current?.focus();
+                    } else {
+                        refInput?.current?.blur();
+                        refInput?.current?.clear();
+                        onPress()
+                    }
+                }}>
+                <Search />
+            </TouchableHighlight>
+            <TextInput
+                style={stylesColorful(isDarkMode).textInput}
+                placeholder={strings.search}
+                returnKeyType="done"
+                ref={refInput}
+                onChangeText={onChangeText}
+                placeholderTextColor={isDarkMode ? COL.WHITE_200 : COL.BLACK_46} />
+            <TouchableHighlight style={stylesColorful(isDarkMode).eyeLogo}
+                underlayColor={COL.MAIN_PALE}>
+                <Filter />
+            </TouchableHighlight>
+        </View>
+    </View>
+}
+
+export const MainMenu = ({ isDarkMode, children }: { isDarkMode: boolean, children: React.ReactNode }) => {
     return <View>
-        {
-            data.length !== 0 ? <FlatList
-                data={data}
-                scrollEnabled={false}
-                initialNumToRender={10} // initialNumToRender(80)
-                maxToRenderPerBatch={4}
-                windowSize={4}
-                refreshControl={refreshControl}
-                renderItem={renderItem}
-            /> : <View style={styles.emptyListContainer}>
-                <Animated.View
-                    entering={FadeIn.duration(400)}
-                    exiting={FadeOut.duration(400)}
-                    style={styles.animatedForEmptyList}>
-                    <Text style={stylesColorful(isDarkMode).textForEmptyList}>{emptyMessage}</Text>
-                </Animated.View>
-            </View>
-        }
+        <Menu>
+            <MenuTrigger style={[COL.stylesMain.menuButton, { backgroundColor: '#00000000' }]}>
+                <Menus />
+            </MenuTrigger>
+            <MenuOptions
+                customStyles={{
+                    optionsContainer: stylesColorful(isDarkMode).optionsMenuContainer,
+                }} children={children} />
+        </Menu>
     </View>
 }
 
@@ -247,17 +294,26 @@ const styles = StyleSheet.create({
     },
     emptyListContainer: {
         width: '100%',
-        height: '50%',
+        height: '30%',
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
         flexWrap: 'wrap',
+    },
+    listContainer: {
+        width: '100%',
+        height: '100%',
     },
     animatedForEmptyList: {
         marginStart: 60,
         marginEnd: 60,
         position: 'absolute',
         bottom: 0,
+    },
+    searchView: {
+        width: '100%',
+        alignItems: 'center',
+        marginTop: 25,
     },
 });
 
@@ -319,6 +375,50 @@ const stylesColorful = (isDark: boolean) => {
             fontWeight: '400',
             fontSize: 21,
             color: isDark ? COL.WHITE_200 : COL.BLACK_55,
+        },
+        optionsMenuContainer: {
+            width: 110,
+            backgroundColor: isDark ? COL.BLACK_55 : COL.WHITE_200,
+            borderRadius: 10,
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexDirection: 'column',
+            flex: 1,
+            flexWrap: 'wrap',
+            marginTop: 45,
+        },
+        textInputContainer: {
+            width: 230,
+            height: 40,
+            backgroundColor: isDark ? COL.GREY : COL.WHITE_196,
+            borderRadius: 20,
+            elevation: 10,
+            alignItems: 'center',
+            shadowColor: COL.BLACK,
+            justifyContent: 'center',
+            flex: 0,
+            flexDirection: 'row',
+        },
+        eyeLogo: {
+            width: 40,
+            height: 40,
+            padding: 7,
+            flex: 0,
+            justifyContent: 'flex-end',
+            borderRadius: 20,
+            elevation: 10,
+            shadowColor: COL.BLACK,
+            backgroundColor: isDark ? COL.GREY : COL.WHITE_196,
+        },
+        textInput: {
+            fontSize: 16,
+            textTransform: 'capitalize',
+            width: '100%',
+            height: '100%',
+            color: isDark ? COL.WHITE : COL.BLACK,
+            paddingStart: 10,
+            textAlign: 'center',
+            flex: 1,
         },
     });
 };

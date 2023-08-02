@@ -1,22 +1,6 @@
 import { DAYS_FOR_PICKER } from "./const";
 import { AppointmentDate, AppointmentSack, DoctorSack, createAppointmentSack } from "./model";
 
-const isSameDay = (day: number, another: number) => new Date(Number(day)).setHours(0, 0, 0) === new Date(Number(another)).setHours(0, 0, 0);
-
-export const resortDoctorAppointment = (doctorApps: AppointmentSack[]): AppointmentSack[][] => {
-    const apps: AppointmentSack[][] = [];
-    const sortedApps = doctorApps.sort((a, b) => a.dayId > b.dayId ? 1 : -1);
-    sortedApps.forEach((value) => {
-        const findDay = apps.find((it) => value.dayId === it[0].dayId);
-        if (findDay !== undefined) {
-            findDay.push(value);
-        } else {
-            apps.push([value]);
-        }
-    });
-    return apps;
-};
-
 export const mergeSpaciestAppointment = (specialistId: number, appointment: AppointmentSack[]) => {
     var allDaysAppointment: AppointmentSack[] = []
     for (var day of DAYS_FOR_PICKER) {
@@ -54,3 +38,19 @@ export const margeAppointmentDate = (appointment: AppointmentSack): AppointmentS
     appointment.appointments = list;
     return appointment
 }
+
+/*
+const isSameDay = (day: number, another: number) => new Date(Number(day)).setHours(0, 0, 0) === new Date(Number(another)).setHours(0, 0, 0);
+export const resortDoctorAppointment = (doctorApps: AppointmentSack[]): AppointmentSack[][] => {
+    const apps: AppointmentSack[][] = [];
+    const sortedApps = doctorApps.sort((a, b) => a.dayId > b.dayId ? 1 : -1);
+    sortedApps.forEach((value) => {
+        const findDay = apps.find((it) => value.dayId === it[0].dayId);
+        if (findDay !== undefined) {
+            findDay.push(value);
+        } else {
+            apps.push([value]);
+        }
+    });
+    return apps;
+};*/

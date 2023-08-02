@@ -1,17 +1,17 @@
 import React from 'react';
 import { BackHandler, EmitterSubscription, NativeEventEmitter, RefreshControl, SafeAreaView, StatusBar, StyleSheet, Text, TextInput, TouchableHighlight, View } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { FetchIsDarkMode, initialNumToRender } from '../../global/dims';
-import { DonePending, Filter, Menus, Search, UnderReview } from '../../assets/logo';
+import { FetchIsDarkMode } from '../../global/dims';
+import { DonePending, UnderReview } from '../../assets/logo';
 import * as COL from '../../global/styles';
 import * as CONST from '../../global/const';
 import { DoctorSack, ExaminationSack, jsonToDoctor } from '../../global/model';
-import { FlatListed, ProfilePic } from '../../global/baseView';
-import { convertDateToMonthAndDay, formatAmPm, updatePref } from '../../global/utils';
-import MultiSwitch from 'react-native-multiple-switch';
+import { FlatListed, MainMenu, ProfilePic, SearchView } from '../../global/baseView';
+import { convertDateToMonthAndDay, firstCapital, formatAmPm, updatePref } from '../../global/utils';
+import MultiSwitch from '../../component/multipleSwitch/multipleSwitch';
 import { fetchExaminationHistoryForDoctor } from '../../firebase/fireStore';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { Menu, MenuOption, MenuOptions, MenuProvider, MenuTrigger } from 'react-native-popup-menu';
+import { MenuOption, MenuProvider } from 'react-native-popup-menu';
 import { signOut } from '../../firebase/fireAuth';
 import { checkForIntent } from '../../firebase/notifyNavigator';
 import { checkNewMessage } from '../../firebase/lifecycle';
@@ -30,7 +30,7 @@ const HomeDocScreen = ({ route, navigation }: { route: any, navigation: any }) =
 
   const doctorSack: DoctorSack = jsonToDoctor(data, data.doctorDocId);
 
-  return doctorSack.approved ? <DoctorHome isDarkMode={isDarkMode} togglePos={togglePos !== undefined ? togglePos : 1} doctor={doctorSack} navigation={navigation} /> : <DoctorHomeUnderReview isDarkMode={isDarkMode} doctor={doctorSack} />;
+  return doctorSack.approved ? <DoctorHome isDarkMode={isDarkMode} togglePos={togglePos !== undefined ? togglePos : 1} doctor={doctorSack} navigation={navigation} /> : <DoctorHomeUnderReview isDarkMode={isDarkMode} doctor={doctorSack} navigation={navigation} />;
 };
 
 type Props = {
@@ -64,8 +64,8 @@ const DoctorHome = ({ isDarkMode, doctor, togglePos, navigation }: { isDarkMode:
 
   React.useEffect(() => {
     updateSpinner(true);
-    fetchExaminationHistoryForDoctor(doctor.doctorDocId, state.toggle === toggleItems[0], (allDoctors) => {
-      dispatch({ examinations: allDoctors, originalExamination: allDoctors })
+    fetchExaminationHistoryForDoctor(doctor.doctorDocId, state.toggle === toggleItems[0], (allExaminations) => {
+      dispatch({ examinations: allExaminations, originalExamination: allExaminations })
     });
     checkForIntent(isDarkMode, (map: any) => {
       updateSpinner(false);
@@ -90,7 +90,7 @@ const DoctorHome = ({ isDarkMode, doctor, togglePos, navigation }: { isDarkMode:
         emitterSubscription.current?.remove();
         emitterSubscription.current = null;
       }
-    } catch(e) {}
+    } catch (e) { }
   }
 
   const renderItem = ({ item }: { item: ExaminationSack }) => {
@@ -99,8 +99,8 @@ const DoctorHome = ({ isDarkMode, doctor, togglePos, navigation }: { isDarkMode:
         clearEmitter()
         emitterSubscription.current = new NativeEventEmitter().addListener(CONST.REFRESH_APPOINTMENT, () => {
           updateSpinner(true);
-          fetchExaminationHistoryForDoctor(doctor.doctorDocId, state.toggle === toggleItems[0], (allDoctors) => {
-            dispatch({ examinations: allDoctors, originalExamination: allDoctors, spinner: false })
+          fetchExaminationHistoryForDoctor(doctor.doctorDocId, state.toggle === toggleItems[0], (allExaminations) => {
+            dispatch({ examinations: allExaminations, originalExamination: allExaminations, spinner: false })
           });
           clearEmitter()
         })
@@ -119,8 +119,9 @@ const DoctorHome = ({ isDarkMode, doctor, togglePos, navigation }: { isDarkMode:
     }
   };
 
+  const stylesColorMain = COL.stylesColorMain(isDarkMode)
   return <MenuProvider skipInstanceCheck={true}>
-    <SafeAreaView style={stylesColorful(isDarkMode).backStyle}>
+    <SafeAreaView style={stylesColorMain.backStyle}>
       <StatusBar translucent={false} backgroundColor={isDarkMode ? Colors.darker : Colors.lighter} barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <Spinner
         visible={state.spinner}
@@ -131,75 +132,40 @@ const DoctorHome = ({ isDarkMode, doctor, togglePos, navigation }: { isDarkMode:
         cancelable={false}
         overlayColor={isDarkMode ? COL.SHADOW_WHITE : COL.SHADOW_BLACK}
       />
-      <View style={styles.mainContainer}>
-        <View style={styles.headerContainer}>
-          <View style={styles.logoContainer}>
-            <Text style={stylesColorful(isDarkMode).highlight}>{strings.hey + (doctor.nameDoc.length > 15 ? String(doctor.nameDoc).substring(0, 15) + '..' : doctor.nameDoc)}</Text>
+      <View style={COL.stylesMain.mainContainer}>
+        <View style={COL.stylesMain.headerContainer}>
+          <View style={COL.stylesMain.headerDetailsContainer}>
+            <Text style={stylesColorMain.screenTittle}>{strings.hey + (doctor.nameDoc.length > 15 ? String(doctor.nameDoc).substring(0, 15) + '..' : doctor.nameDoc)}</Text>
           </View>
-          <View style={styles.logoContainerBack}>
-            <Menu>
-              <MenuTrigger style={styles.menuButton}>
-                <Menus />
-              </MenuTrigger>
-              <MenuOptions
-                customStyles={{
-                  optionsContainer: stylesColorful(isDarkMode).optionsMenuContainer,
-                }}>
-                <MenuOption
-                  text={strings.signOut}
-                  onSelect={() => {
-                    signOut(() => {
-                      BackHandler.exitApp();
-                    });
-                  }} customStyles={{
-                    optionText: stylesColorful(isDarkMode).optionMenuText,
-                  }} />
-              </MenuOptions>
-            </Menu>
+          <View style={COL.stylesMain.headerIconsContainer}>
+            <MainMenu isDarkMode={isDarkMode}>
+              <MenuOption
+                text="Sign Out"
+                onSelect={() => {
+                  signOut(() => {
+                    navigation.replace(CONST.LOG_In, { isDark: isDarkMode, isDoctor: true })
+                    BackHandler.exitApp();
+                  });
+                }} customStyles={{
+                  optionText: stylesColorMain.optionMenuItemText,
+                }} />
+            </MainMenu>
             <TouchableHighlight
-              style={styles.profileButton}
+              style={COL.stylesMain.profileButton}
               underlayColor={COL.MAIN_WHITER}
               onPress={() => { }}>
-              <ProfilePic style={styles.doctorImage} uri={doctor.personalImage} />
+              <ProfilePic style={COL.stylesMain.profilePic} uri={doctor.personalImage} />
             </TouchableHighlight>
           </View>
         </View>
-        <View style={styles.searchView}>
-          <View style={stylesColorful(isDarkMode).textInputContainer}>
-            <TouchableHighlight style={stylesColorful(isDarkMode).eyeLogo}
-              underlayColor={COL.MAIN_PALE}
-              onPress={() => {
-                if (refInput?.current === null) {
-                  return;
-                }
-                if (!refInput?.current?.isFocused()) {
-                  refInput?.current?.focus();
-                } else {
-                  refInput?.current?.blur();
-                  refInput?.current?.clear();
-                  dispatch({ examinations: state.originalExamination })
-                }
-              }}>
-              <Search />
-            </TouchableHighlight>
-            <TextInput
-              style={stylesColorful(isDarkMode).textInput}
-              placeholder={strings.search}
-              returnKeyType="done"
-              ref={refInput}
-              onChangeText={(text: String) => {
-                dispatch({ examinations: state.originalExamination.filter((it: ExaminationSack) => String(it.clientNote).toLowerCase().includes(String(text).toLowerCase()) || String(it.examinationName).toLowerCase().includes(String(text).toLowerCase())) })
-              }}
-              placeholderTextColor={isDarkMode ? COL.WHITE_200 : COL.BLACK_46} />
-            <TouchableHighlight style={stylesColorful(isDarkMode).eyeLogo}
-              underlayColor={COL.MAIN_PALE}>
-              <Filter />
-            </TouchableHighlight>
-          </View>
-        </View>
-        <View style={styles.toggleContainerBack}>
+        <SearchView isDarkMode={isDarkMode}
+          onChangeText={(text: String) => {
+            dispatch({ examinations: state.originalExamination.filter((it: ExaminationSack) => String(it.clientNote).toLowerCase().includes(String(text).toLowerCase()) || String(it.examinationName).toLowerCase().includes(String(text).toLowerCase())) })
+          }}
+          onPress={() => dispatch({ examinations: state.originalExamination })} />
+        <View style={COL.stylesMain.toggleContainerBack}>
           <View />
-          <View style={styles.toggleViewStyle}>
+          <View style={COL.stylesMain.toggleViewStyle}>
             <MultiSwitch
               value={state.toggle}
               items={toggleItems}
@@ -207,16 +173,16 @@ const DoctorHome = ({ isDarkMode, doctor, togglePos, navigation }: { isDarkMode:
                 const bool = value === toggleItems[0];
                 updatePref(CONST.TOGGLE_HOME, bool ? '0' : '1', () => { });
                 dispatch({ toggle: value, spinner: true })
-                fetchExaminationHistoryForDoctor(doctor.doctorDocId, bool, (allDoctors) => {
-                  dispatch({ examinations: allDoctors, originalExamination: allDoctors, spinner: false })
+                fetchExaminationHistoryForDoctor(doctor.doctorDocId, bool, (allExaminations) => {
+                  dispatch({ examinations: allExaminations, originalExamination: allExaminations, spinner: false })
                 });
               }}
-              containerStyle={stylesColorful(isDarkMode).toggleView}
+              containerStyle={stylesColorMain.toggleView}
               sliderStyle={{
                 backgroundColor: COL.MAIN,
               }}
-              textStyle={stylesColorful(isDarkMode).textToggleStyle}
-              activeTextStyle={styles.activeToggleText}
+              textStyle={stylesColorMain.textToggleStyle}
+              activeTextStyle={COL.stylesMain.activeToggleStyle}
             />
           </View>
         </View>
@@ -225,7 +191,13 @@ const DoctorHome = ({ isDarkMode, doctor, togglePos, navigation }: { isDarkMode:
           refreshControl={
             <RefreshControl
               refreshing={false}
-              onRefresh={async () => { }} />
+              onRefresh={() => {
+                fetchExaminationHistoryForDoctor(doctor.doctorDocId, state.toggle === toggleItems[0], (allExaminations) => {
+                  if (allExaminations !== state.examinations) {
+                    dispatch({ examinations: allExaminations, originalExamination: allExaminations })
+                  }
+                });
+              }} />
           }
           renderItem={renderItem}
           isDarkMode={isDarkMode}
@@ -235,42 +207,39 @@ const DoctorHome = ({ isDarkMode, doctor, togglePos, navigation }: { isDarkMode:
   </MenuProvider>;
 };
 
-const DoctorHomeUnderReview = ({ isDarkMode, doctor }: { isDarkMode: boolean, doctor: DoctorSack }) => {
+const DoctorHomeUnderReview = ({ isDarkMode, doctor, navigation }: { isDarkMode: boolean, doctor: DoctorSack, navigation: any }) => {
+
+  const stylesColorMain = COL.stylesColorMain(isDarkMode)
   return <MenuProvider>
-    <SafeAreaView style={stylesColorful(isDarkMode).backStyle}>
+    <SafeAreaView style={stylesColorMain.backStyle}>
       <StatusBar translucent={false} backgroundColor={isDarkMode ? Colors.darker : Colors.lighter} barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <View style={styles.mainContainer}>
-        <View style={styles.headerContainer}>
-          <View style={styles.logoContainer}>
-            <Text style={stylesColorful(isDarkMode).highlight}>{strings.hey + (doctor.nameDoc.length > 15 ? String(doctor.nameDoc).substring(0, 15) + '..' : doctor.nameDoc)}</Text>
+      <View style={COL.stylesMain.mainContainer}>
+        <View style={COL.stylesMain.headerContainer}>
+          <View style={COL.stylesMain.headerDetailsContainer}>
+            <Text style={stylesColorMain.screenTittle}>{strings.hey + (doctor.nameDoc.length > 15 ? String(doctor.nameDoc).substring(0, 15) + '..' : doctor.nameDoc)}</Text>
           </View>
-          <View style={styles.logoContainerBack}>
-            <View>
-              <Menu>
-                <MenuTrigger style={styles.menuButton}>
-                  <Menus />
-                </MenuTrigger>
-                <MenuOptions
-                  customStyles={{
-                    optionsContainer: stylesColorful(isDarkMode).optionsMenuContainer,
-                  }}>
-                  <MenuOption
-                    text={strings.signOut}
-                    onSelect={() => {
+          <View style={COL.stylesMain.headerIconsContainer}>
+            <MainMenu isDarkMode={isDarkMode}>
+              <MenuOption
+                customStyles={{
+                  OptionTouchableComponent: () => <TouchableHighlight
+                    underlayColor={isDarkMode ? COL.SHADOW_BLACK : COL.SHADOW_WHITE}
+                    style={stylesColorMain.optionMenuItemContainer}
+                    onPress={() => {
                       signOut(() => {
+                        navigation.replace(CONST.LOG_In, { isDark: isDarkMode, isDoctor: true })
                         BackHandler.exitApp();
-                      });
-                    }} customStyles={{
-                      optionText: stylesColorful(isDarkMode).optionMenuText,
-                    }} />
-                </MenuOptions>
-              </Menu>
-            </View>
+                      })
+                    }}>
+                    <Text style={stylesColorMain.optionMenuItemText}>{strings.signOut}</Text>
+                  </TouchableHighlight>
+                }} />
+            </MainMenu>
             <TouchableHighlight
-              style={styles.profileButton}
+              style={COL.stylesMain.profileButton}
               underlayColor={COL.MAIN_WHITER}
               onPress={() => { }}>
-              <ProfilePic style={styles.doctorImage} uri={doctor.personalImage} />
+              <ProfilePic style={COL.stylesMain} uri={doctor.personalImage} />
             </TouchableHighlight>
           </View>
         </View>
@@ -280,7 +249,7 @@ const DoctorHomeUnderReview = ({ isDarkMode, doctor }: { isDarkMode: boolean, do
               style={styles.logoStyle}>
               <UnderReview color={COL.MAIN} />
             </View>
-            <Text style={stylesColorful(isDarkMode).highlight}>Your Account Under Review</Text>
+            <Text style={stylesColorMain.screenTittle}>Your Account Under Review</Text>
           </View>
         </View>
       </View>
@@ -291,24 +260,26 @@ const DoctorHomeUnderReview = ({ isDarkMode, doctor }: { isDarkMode: boolean, do
 function recyclerChildExamination(value: ExaminationSack, isDarkMode: boolean, press: () => void) {
   const tittle = value.examinationName.length !== 0 ? value.examinationName : strings.mr + value.communicationMethods.clientName + ' ' + convertDateToMonthAndDay(value.date) + '-' + formatAmPm(value.date);
 
-  return <View style={styles.examinationRowContainer} key={value.date}>
-    <TouchableHighlight style={styles.mainDoctorStyle}
-      key={value.documentId}
+  return <View style={COL.stylesMain.mainFlatListContainer} key={value.date}>
+    <TouchableHighlight
+      style={COL.stylesMain.touchableFlatListContainer}
       onPress={press}
       underlayColor={isDarkMode ? COL.SHADOW_BLACK : COL.SHADOW_WHITE}>
-      <View style={styles.mainDoctorContent}>
-        <View style={styles.doctorContainer}>
-          <ProfilePic style={styles.doctorImage} uri={value.communicationMethods.clientImg} />
+      <View style={COL.stylesMain.subTouchableFlatList}>
+        <View style={COL.stylesMain.profilePicContainer}>
+          <ProfilePic style={COL.stylesMain.profilePic} uri={value.communicationMethods.clientImg} />
         </View>
-        <View style={styles.doctorContainerNameStyle}>
-          <Text style={stylesColorful(isDarkMode).doctorNameStyle}>{tittle}</Text>
-          <Text style={styles.doctorSpecialist}>{value.clientNote}</Text>
+        <View style={COL.stylesMain.flatListDetailsContainer}>
+          <Text style={[COL.stylesColorMain(isDarkMode).screenTittle, { marginTop: 10 }]}>{firstCapital(tittle)}</Text>
+          <View style={COL.stylesMain.subFlatListDetails}>
+            <Text style={COL.stylesMain.flatListSubTittle}>{value.clientNote}</Text>
+            <View style={COL.stylesMain.flatListDetailsIcon}>
+              <DonePending isDone={value.doctorAccepted} />
+            </View>
+          </View>
         </View>
-        <View style={styles.leftArrowStyle}>
-          <DonePending isDone={value.doctorAccepted} />
-        </View>
-        <View style={styles.bottomLineContainerStyle}>
-          <View style={styles.bottomLineStyle} />
+        <View style={COL.stylesMain.bottomLineFlatListContainer}>
+          <View style={COL.stylesMain.bottomLineFlatList} />
         </View>
       </View>
     </TouchableHighlight>
@@ -316,39 +287,10 @@ function recyclerChildExamination(value: ExaminationSack, isDarkMode: boolean, p
 }
 
 const styles = StyleSheet.create({
-  headerContainer: { width: '100%', height: 60, alignSelf: 'baseline' },
-  examinationRowContainer: { flexDirection: 'column', justifyContent: 'flex-start', flex: 1, flexWrap: 'wrap', width: '100%' },
-  activeToggleText: { color: COL.WHITE, fontSize: 14, fontWeight: '300' },
-  underReviewContainer: { position: 'absolute', width: '100%', marginTop: 250 },
-  menuButton: { width: 48, height: 48, padding: 13, borderRadius: 24, backgroundColor: '#00000000' },
-  profileButton: { width: 66, height: 66, borderRadius: 33, overflow: 'hidden', marginEnd: 5 },
-  toggleContainerBack: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingEnd: 10,
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  logoContainerBack: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+  underReviewContainer: {
     position: 'absolute',
     width: '100%',
-  },
-  mainContainer: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    flex: 1,
-    flexWrap: 'wrap',
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-    width: '100%',
-    height: '100%',
+    marginTop: 250
   },
   logoContainerLin: {
     flexDirection: 'row',
@@ -363,143 +305,7 @@ const styles = StyleSheet.create({
     marginEnd: 10,
     marginTop: 30,
   },
-  searchView: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  mainDoctorStyle: {
-    width: '100%',
-    height: 80,
-    borderRadius: 20,
-  },
-  mainDoctorContent: {
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  doctorContainer: {
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    overflow: 'hidden',
-    marginStart: 10,
-  },
-  doctorImage: {
-    width: 66,
-    height: 66,
-  },
-  doctorContainerNameStyle: {
-    marginStart: 10,
-  },
-  toggleViewStyle: {
-    width: 180,
-    padding: 10,
-    marginEnd: 10,
-  },
-  doctorSpecialist: {
-    marginStart: 10,
-    fontWeight: '500',
-    fontSize: 18,
-    color: COL.MAIN,
-  },
-  leftArrowStyle: {
-    width: 15,
-    height: 15,
-    marginStart: 50,
-  },
-  bottomLineContainerStyle: {
-    width: '100%',
-    height: 2,
-    position: 'absolute',
-    paddingStart: 40,
-    paddingEnd: 40,
-    bottom: 0,
-  },
-  bottomLineStyle: {
-    width: '100%',
-    height: 2,
-    backgroundColor: COL.MAIN,
-    bottom: 0,
-  },
 });
 
-
-const stylesColorful = (isDark: boolean) => {
-  return StyleSheet.create({
-    backStyle: {
-      backgroundColor: isDark ? Colors.darker : Colors.lighter,
-      width: '100%',
-      height: '100%',
-    },
-    highlight: {
-      fontWeight: '700',
-      fontSize: 18,
-      marginStart: 60,
-      marginEnd: 60,
-      color: isDark ? COL.WHITE : COL.BLACK,
-    },
-    textInput: {
-      fontSize: 16,
-      textTransform: 'capitalize',
-      width: '100%',
-      height: '100%',
-      color: isDark ? COL.WHITE : COL.BLACK,
-      paddingStart: 10,
-      textAlign: 'center',
-      flex: 1,
-    },
-    textInputContainer: {
-      width: 230,
-      height: 40,
-      backgroundColor: isDark ? COL.GREY : COL.WHITE_196,
-      borderRadius: 20,
-      elevation: 10,
-      alignItems: 'center',
-      shadowColor: COL.BLACK,
-      justifyContent: 'center',
-      flex: 0,
-      flexDirection: 'row',
-    },
-    eyeLogo: {
-      width: 40,
-      height: 40,
-      padding: 7,
-      flex: 0,
-      justifyContent: 'flex-end',
-      borderRadius: 20,
-      elevation: 10,
-      shadowColor: COL.BLACK,
-      backgroundColor: isDark ? COL.GREY : COL.WHITE_196,
-    },
-    doctorNameStyle: {
-      fontWeight: '700',
-      fontSize: 18,
-      color: isDark ? COL.WHITE : COL.BLACK,
-    },
-    toggleView: {
-      backgroundColor: isDark ? COL.BLACK_55 : COL.WHITE_196,
-      height: 40,
-      width: 180,
-    },
-    textToggleStyle: {
-      color: isDark ? COL.WHITE : COL.BLACK,
-      fontSize: 14,
-      fontWeight: '300',
-    },
-    optionsMenuContainer: {
-      backgroundColor: isDark ? COL.BLACK_55 : COL.WHITE_200,
-      width: 110,
-      borderRadius: 10,
-      justifyContent: 'center',
-      alignItems: 'center',
-      flexDirection: 'column',
-      flex: 1,
-      flexWrap: 'wrap',
-      marginTop: 40,
-    },
-    optionMenuText: { color: isDark ? COL.WHITE_226 : COL.BLACK_26, textAlign: 'center', height: 30, fontSize: 14, fontWeight: '500', padding: 5 },
-  });
-};
 
 export default HomeDocScreen;

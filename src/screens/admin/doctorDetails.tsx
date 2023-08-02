@@ -4,21 +4,20 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { FetchIsDarkMode } from '../../global/dims';
 import { BackArrow, CertificateView, DonePending } from '../../assets/logo';
 import * as COL from '../../global/styles';
-import { ExaminationSack, jsonToDoctor } from '../../global/model';
+import { AppointmentSack, ExaminationSack, jsonToDoctor } from '../../global/model';
 import { TagSelectOne, ICheckboxButton } from '../../component/selectorView/TagSelectMulti';
-import { formatAmPm, pushLocalNotification } from '../../global/utils';
-import { resortDoctorAppointment, } from '../../global/modelHandler';
+import { firstCapital, formatAmPm, formatHourAmPm, pushLocalNotification } from '../../global/utils';
 import useStateWithCallback, { DispatchWithCallback } from '../../component/selectorView/useStateWithCallback';
 import { convertDateToMonthAndDay } from '../../global/utils';
 import { DialogTwoButtonAlert, FlatListed, ProfilePic, SeeMoreText } from '../../global/baseView';
-import { acceptDoctor, fetchExaminationHistory, rejectDoctor } from '../../firebase/fireStore';
+import { acceptDoctor, fetchDoctorAppointment, fetchExaminationHistory, rejectDoctor } from '../../firebase/fireStore';
 import * as CONST from '../../global/const';
-import MultiSwitch from 'react-native-multiple-switch';
 import { sendFcmMessage } from '../../firebase/firebaseMessaging';
 import Spinner from 'react-native-loading-spinner-overlay';
+import MultiSwitch from '../../component/multipleSwitch/multipleSwitch';
 
 type Props = {
-  dataList: any[],
+  dataList: ExaminationSack[] | AppointmentSack[],
   dialogRemoveDoctorVisible: boolean,
   dialogAcceptDoctorVisible: boolean,
   toggle: string,
@@ -26,7 +25,7 @@ type Props = {
 }
 
 type IProps = {
-  dataList?: any[],
+  dataList?: ExaminationSack[] | AppointmentSack[],
   dialogRemoveDoctorVisible?: boolean,
   dialogAcceptDoctorVisible?: boolean,
   toggle?: string,
@@ -37,20 +36,18 @@ const DoctorDetailAdmin = ({ route, navigation }: { route: any, navigation: any 
   const { isDark } = route.params;
   const isDarkMode: boolean = route !== undefined && route.params != null ? isDark : FetchIsDarkMode();
   const { data } = route.params;
+  const { dispatcher } = route.params;
   const doc = jsonToDoctor(data, data.doctorDocId);
 
   const selectedState = useStateWithCallback<
     ICheckboxButton | undefined
   >([undefined]);
 
-  const dataProv = resortDoctorAppointment(
-    []//doc.appointment
-  );
   const toggleItems = ['History', 'Appointment'];
   const [state, dispatch] = React.useReducer<(prevState: Props, action: IProps) => Props>(
     (state: Props, newState: IProps) => ({ ...state, ...newState }),
-    {
-      dataList: dataProv,
+    dispatcher !== undefined ? dispatcher : {
+      dataList: [],
       dialogRemoveDoctorVisible: false,
       dialogAcceptDoctorVisible: false,
       toggle: toggleItems[1],
@@ -58,15 +55,52 @@ const DoctorDetailAdmin = ({ route, navigation }: { route: any, navigation: any 
     },
   );
 
+  React.useEffect(() => {
+    //if (dispatcher === undefined) {
+    updateSpinner(true)
+    loadDetails(state.toggle)
+    //}
+    /*const subscription = Dimensions.addEventListener('change', (it) => {
+      navigation.replace(route.name, { isDark: isDark, data: data, dispatcher: state })
+    });
+    return () => {
+      subscription.remove();
+    };*/
+  }, [])
+
   const renderItem = ({ item }: { item: any }) => {
     if (item instanceof ExaminationSack) {
-      return recyclerChildExamination(item, isDarkMode, () => navigation.navigate(CONST.APPOINTMENT_SCREEN, { isDark: isDarkMode, data: item, modeApp: CONST.EDIT_SAVE_ALL_OFF, newAp: [] }));
+      return recyclerChildExamination(item, isDarkMode, () => navigation.navigate(CONST.APPOINTMENT_SCREEN, { isDark: isDarkMode, data: item.asJsonAll(), modeApp: CONST.EDIT_SAVE_ALL_OFF, newAp: [] }));
     } else {
-      return recyclerChild(item, isDarkMode, selectedState);
+      return recyclerChild(item as AppointmentSack, isDarkMode, selectedState);
     }
   };
 
-  return <SafeAreaView style={stylesColorful(isDarkMode).backStyle}>
+  const loadDetails = (value: string) => {
+    if (value === toggleItems[1]) {
+      fetchDoctorAppointment(doc.specialistId, doc.doctorDocId, new Date(Date.now()), (appointments) => {
+        dispatch({ spinner: false, dataList: appointments.sort((a, b) => a.dayId > b.dayId ? 1 : -1) })
+      }, () => updateSpinner(false))
+    } else {
+      fetchExaminationHistory(doc.doctorDocId, (allDoctorExamination) => {
+        dispatch({ spinner: false, dataList: allDoctorExamination })
+      });
+    }
+  }
+
+  const updateSpinner = (enable: boolean) => {
+    if (enable) {
+      dispatch({ spinner: true })
+      setTimeout(() => {
+        dispatch({ spinner: false })
+      }, 3000);
+    } else {
+      dispatch({ spinner: false })
+    }
+  };
+
+  const stylesColorMain = COL.stylesColorMain(isDarkMode)
+  return <SafeAreaView style={stylesColorMain.backStyle}>
     <StatusBar translucent={false} backgroundColor={isDarkMode ? Colors.darker : Colors.lighter} barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
     <Spinner
       visible={state.spinner}
@@ -76,24 +110,24 @@ const DoctorDetailAdmin = ({ route, navigation }: { route: any, navigation: any 
       animation={'fade'}
       cancelable={false}
       overlayColor={isDarkMode ? COL.SHADOW_WHITE : COL.SHADOW_BLACK} />
-    <View style={styles.mainContainer}>
-      <View style={styles.loginContainer}>
-        <View style={styles.logoContainer}>
-          <Text style={stylesColorful(isDarkMode).doctorNameStyle}>{doc.nameDoc}</Text>
-          <Text style={styles.doctorSpecialist}>{doc.specialistDoc}</Text>
+    <View style={COL.stylesMain.mainContainer}>
+      <View style={COL.stylesMain.headerContainer}>
+        <View style={COL.stylesMain.headerDetailsContainer}>
+          <Text style={stylesColorMain.screenTittle}>{firstCapital(doc.nameDoc)}</Text>
+          <Text style={COL.stylesMain.screenSubTittle}>{doc.specialistDoc}</Text>
         </View>
-        <View style={styles.logoContainerBack}>
-          <TouchableHighlight style={styles.menuButton} underlayColor={isDarkMode ? COL.SHADOW_BLACK : COL.SHADOW_WHITE}
+        <View style={COL.stylesMain.headerIconsContainer}>
+          <TouchableHighlight style={COL.stylesMain.menuButton} underlayColor={isDarkMode ? COL.SHADOW_BLACK : COL.SHADOW_WHITE}
             onPress={() => { navigation.goBack(); }}>
             <BackArrow color={isDarkMode ? COL.WHITE : COL.BLACK} />
           </TouchableHighlight>
-          <View style={styles.profileButton}>
+          <View style={COL.stylesMain.profileButton}>
             <TouchableHighlight
               onPress={doc.personalImage.length > 0 ? () => {
                 navigation.navigate(CONST.PROFILE_IMAGE_SCREEN, { data: doc.personalImage, isDark: isDarkMode });
               } : undefined}
               underlayColor={COL.MAIN_WHITER}>
-              <ProfilePic style={styles.doctorImage} uri={doc.personalImage} />
+              <ProfilePic style={COL.stylesMain.profilePic} uri={doc.personalImage} />
             </TouchableHighlight>
           </View>
         </View>
@@ -102,44 +136,41 @@ const DoctorDetailAdmin = ({ route, navigation }: { route: any, navigation: any 
         overScrollMode={'always'}
         keyboardShouldPersistTaps={'handled'}
         keyboardDismissMode={'interactive'}
-        contentContainerStyle={styles.scrollStyle}>
+        contentContainerStyle={COL.stylesMain.scrollStyle}>
         <SeeMoreText isDarkMode={isDarkMode} seeMoreTxt={doc.doctorEditedBio.length === 0 ? doc.doctorBio : doc.doctorEditedBio} subAfter={300} tittle={'Doctor Bio'} />
         <View style={styles.bookButtonContainer}>
           <TouchableHighlight
             style={styles.displayCerButton}
             onPress={() => { navigation.navigate(CONST.CERTIFICATES_SCREEN, { isDark: isDarkMode, data: doc.doctorAuth }); }}
             underlayColor={COL.MAIN_WHITER}>
-            <View style={styles.logoContainerLin}>
-              <View style={StyleSheet.flatten({ width: 30, height: 30, marginTop: 8, resizeMode: 'contain', marginEnd: 5, marginStart: 15 })}>
+            <View style={styles.certificateViewContainer}>
+              <View style={styles.certificateIconContainer}>
                 <CertificateView color={COL.WHITE} />
               </View>
               <Text style={styles.certificateTextBottom}>Certificates</Text>
             </View>
           </TouchableHighlight>
         </View>
-        <View style={stylesColorful(isDarkMode).backListStyle}>
-          <View style={styles.toggleContainerBack}>
-            <View style={styles.menuButton} />
-            <View style={styles.toggleViewStyle}>
+        <View style={stylesColorMain.backListFourCorner}>
+          <View style={COL.stylesMain.toggleContainerBack}>
+            <View />
+            <View style={COL.stylesMain.toggleViewStyle}>
               <MultiSwitch
                 value={state.toggle}
                 items={toggleItems}
                 onChange={(value: string) => {
-                  dispatch({ toggle: value })
-                  if (value === toggleItems[0]) {
-                    fetchExaminationHistory(doc.doctorDocId, (allDoctorExamination) => {
-                      dispatch({ dataList: allDoctorExamination })
-                    });
-                  } else {
-                    dispatch({ dataList: dataProv })
-                  }
+                  dispatch({ toggle: value, spinner: true })
+                  setTimeout(() => {
+                    dispatch({ spinner: false })
+                  }, 3000);
+                  loadDetails(value)
                 }}
-                containerStyle={stylesColorful(isDark).toggleView}
+                containerStyle={stylesColorMain.toggleView}
                 sliderStyle={{
                   backgroundColor: COL.MAIN,
                 }}
-                textStyle={stylesColorful(isDarkMode).textToggleStyle}
-                activeTextStyle={styles.activeToggleStyle}
+                textStyle={stylesColorMain.textToggleStyle}
+                activeTextStyle={COL.stylesMain.activeToggleStyle}
               />
             </View>
           </View>
@@ -209,21 +240,22 @@ const DoctorDetailAdmin = ({ route, navigation }: { route: any, navigation: any 
       }} />
   </SafeAreaView>;
 };
-//value: Appointment[]
-function recyclerChild(value: any[], isDarkMode: boolean, selectedState: [any, DispatchWithCallback<React.SetStateAction<any>>]) {
+
+function recyclerChild(value: AppointmentSack, isDarkMode: boolean, selectedState: [any, DispatchWithCallback<React.SetStateAction<any>>]) {
   const dates: ICheckboxButton[] = [];
-  value.forEach((valueR) => {
-    dates.push({ id: valueR.date, name: formatAmPm(valueR.date) });
+  value.appointments.forEach((valueR) => {
+    dates.push({ id: ('' + value.dayId + '/*/' + valueR.hour), name: formatHourAmPm(valueR.hour) });
   });
 
-  return <View style={styles.mainAppContainer} key={value[0].date}>
-    <Text style={stylesColorful(isDarkMode).doctorNameStyle}>{convertDateToMonthAndDay(value[0].date)}</Text>
+  const stylesColorMain = COL.stylesColorMain(isDarkMode)
+  return <View style={[COL.stylesMain.mainFlatListContainer, { margin: 7 }]} key={value.dayId}>
+    <Text style={stylesColorful(isDarkMode).doctorNameStyle}>{CONST.DAYS_FOR_PICKER[value.dayId].name}</Text>
     <TagSelectOne
       data={dates}
       onChange={() => { }}
       selectState={selectedState}
-      itemStyle={stylesColorful(isDarkMode).itemStyle}
-      itemStyleSelected={stylesColorful(isDarkMode).itemStyleSelected}
+      itemStyle={stylesColorMain.toggleItemStyle}
+      itemStyleSelected={stylesColorMain.toggleItemStyleSelected}
       itemLabelStyle={{ color: isDarkMode ? COL.BLACK_55 : COL.WHITE_196 }}
       itemLabelStyleSelected={{ color: COL.BLACK }} />
   </View>;
@@ -231,26 +263,27 @@ function recyclerChild(value: any[], isDarkMode: boolean, selectedState: [any, D
 
 function recyclerChildExamination(value: ExaminationSack, isDarkMode: boolean, press: () => void) {
   const tittle = value.examinationName.length !== 0 ? value.examinationName : value.communicationMethods.doctorName + ' ' + convertDateToMonthAndDay(value.date) + '-' + formatAmPm(value.date);
-  return <View style={styles.historyAppContainer} key={value.date}>
-    <TouchableHighlight style={styles.mainDoctorStyle}
-      key={value.documentId}
+  return <View style={COL.stylesMain.mainFlatListContainer} key={value.date}>
+    <TouchableHighlight style={COL.stylesMain.touchableFlatListContainer}
       onPress={press}
       underlayColor={isDarkMode ? COL.SHADOW_BLACK : COL.SHADOW_WHITE}>
-      <View style={styles.mainDoctorContent}>
-        <View style={styles.doctorContainer}>
+      <View style={COL.stylesMain.subTouchableFlatList}>
+        <View style={COL.stylesMain.profilePicContainer}>
           <ProfilePic
-            style={styles.doctorImage}
+            style={COL.stylesMain.profilePic}
             uri={value.communicationMethods.clientImg} />
         </View>
-        <View style={styles.doctorContainerNameStyle}>
-          <Text style={stylesColorful(isDarkMode).doctorNameStyle}>{tittle}</Text>
-          <Text style={styles.doctorSpecialist}>{value.clientNote}</Text>
+        <View style={COL.stylesMain.flatListDetailsContainer}>
+          <Text style={[COL.stylesColorMain(isDarkMode).screenTittle, { marginTop: 10 }]}>{firstCapital(tittle)}</Text>
+          <View style={COL.stylesMain.subFlatListDetails}>
+            <Text style={COL.stylesMain.flatListSubTittle}>{value.clientNote}</Text>
+            <View style={COL.stylesMain.flatListDetailsIcon}>
+              <DonePending isDone={value.doctorAccepted} />
+            </View>
+          </View>
         </View>
-        <View style={styles.leftArrowStyle}>
-          <DonePending isDone={value.doctorAccepted} />
-        </View>
-        <View style={styles.bottomLineContainerStyle}>
-          <View style={styles.bottomLineStyle} />
+        <View style={COL.stylesMain.bottomLineFlatListContainer}>
+          <View style={COL.stylesMain.bottomLineFlatList} />
         </View>
       </View>
     </TouchableHighlight>
@@ -268,34 +301,6 @@ const styles = StyleSheet.create({
     shadowColor: COL.WHITE,
     alignItems: 'center',
   },
-  loginContainer: {
-    width: '100%',
-    height: 80,
-    alignSelf: 'baseline',
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-  },
-  menuButton: {
-    width: 48,
-    height: 48,
-    marginTop: 5,
-    padding: 13,
-    borderRadius: 24,
-  },
-  profileButton: { width: 69, height: 66, borderRadius: 33, overflow: 'hidden', marginEnd: 5 },
-  logoContainerBack: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    position: 'absolute',
-    width: '100%',
-  },
-  mainContainer: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    flex: 1,
-  },
   mainAppContainer: {
     flexDirection: 'column',
     justifyContent: 'flex-start',
@@ -304,15 +309,26 @@ const styles = StyleSheet.create({
     width: '100%',
     margin: 7,
   },
-  logoContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-    width: '100%',
-    height: '100%',
-  },
-  logoContainerLin: {
+  certificateViewContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
+  },
+  certificateIconContainer: {
+    width: 30,
+    height: 30,
+    marginTop: 8,
+    resizeMode: 'contain',
+    marginEnd: 5,
+    marginStart: 15
+  },
+  certificateTextBottom: {
+    fontWeight: '700',
+    fontSize: 16,
+    flex: 1,
+    marginTop: 10,
+    marginEnd: 5,
+    color: COL.WHITE,
+    textTransform: 'capitalize',
   },
   textStyle: {
     fontSize: 20,
@@ -329,67 +345,6 @@ const styles = StyleSheet.create({
     color: COL.WHITE,
     textTransform: 'capitalize',
   },
-  certificateTextBottom: {
-    fontWeight: '700',
-    fontSize: 16,
-    flex: 1,
-    marginTop: 10,
-    marginEnd: 5,
-    color: COL.WHITE,
-    textTransform: 'capitalize',
-  },
-  mainDoctorStyle: { width: '100%', height: 80, marginStart: 15, borderRadius: 20 },
-  mainDoctorContent: {
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  doctorContainer: {
-    width: 69,
-    height: 66,
-    borderRadius: 33,
-    overflow: 'hidden',
-  },
-  doctorImage: {
-    width: 69,
-    height: 66,
-  },
-  doctorContainerNameStyle: {
-    marginStart: 10,
-  },
-  doctorSpecialist: {
-    marginStart: 10,
-    fontWeight: '500',
-    fontSize: 18,
-    color: COL.MAIN,
-  },
-  leftArrowStyle: {
-    width: 15,
-    height: 15,
-    marginStart: 50,
-  },
-  bottomLineContainerStyle: {
-    width: '100%',
-    height: 2,
-    position: 'absolute',
-    paddingStart: 40,
-    paddingEnd: 40,
-    bottom: 0,
-  },
-  bottomLineStyle: {
-    width: '100%',
-    height: 2,
-    backgroundColor: COL.MAIN,
-    bottom: 0,
-  },
-  historyAppContainer: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    flex: 1,
-    flexWrap: 'wrap',
-    width: '100%',
-  },
   bookButtonContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -400,62 +355,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 60,
   },
-  scrollStyle: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
-    flex: 0,
-  },
-  toggleViewStyle: {
-    padding: 10,
-    marginEnd: 10,
-    width: 180,
-  },
-  activeToggleStyle: {
-    color: COL.WHITE,
-    fontSize: 14,
-    fontWeight: '300',
-  },
-  toggleContainerBack: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingEnd: 5,
-    justifyContent: 'space-between',
-    width: '100%',
-  },
 });
 
 
 const stylesColorful = (isDark: boolean) => {
   return StyleSheet.create({
-    backStyle: {
-      backgroundColor: isDark ? Colors.darker : Colors.lighter,
-      width: '100%',
-      height: '100%',
-    },
     doctorNameStyle: {
       fontWeight: '700',
       fontSize: 18,
       color: isDark ? COL.WHITE : COL.BLACK,
-    },
-    backListStyle: {
-      borderRadius: 20,
-      shadowColor: COL.MAIN,
-      paddingStart: 10,
-      marginStart: 20,
-      marginEnd: 20,
-      elevation: 15,
-      backgroundColor: isDark ? Colors.darker : Colors.lighter,
-      flex: 1,
-      margin: 7,
-    },
-    itemStyle: {
-      backgroundColor: isDark ? COL.WHITE_196 : COL.BLACK_55,
-      borderColor: isDark ? COL.WHITE_196 : COL.BLACK_55,
-    },
-    itemStyleSelected: {
-      backgroundColor: COL.MAIN,
-      borderColor: COL.MAIN,
     },
     bottomButton: {
       width: 150,
@@ -477,18 +385,7 @@ const stylesColorful = (isDark: boolean) => {
       shadowColor: COL.WHITE,
       alignItems: 'center',
     },
-    toggleView: {
-      backgroundColor: isDark ? COL.BLACK_55 : COL.WHITE_196,
-      height: 40,
-      width: 180,
-    },
-    textToggleStyle: {
-      color: isDark ? COL.WHITE : COL.BLACK,
-      fontSize: 14,
-      fontWeight: '300',
-    },
   });
 };
-
 
 export default DoctorDetailAdmin;

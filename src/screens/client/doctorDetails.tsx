@@ -6,12 +6,12 @@ import { BackArrow, CertificateView, DonePending } from '../../assets/logo';
 import * as COL from '../../global/styles';
 import { AppointmentDoctor, AppointmentSack, ExaminationSack, createCommunicationSack, createExaminationSack, jsonToAppointmentSack, jsonToDoctor } from '../../global/model';
 import { TagSelectOne, ICheckboxButton } from '../../component/selectorView/TagSelectMulti';
-import { findMultiPref, formatAmPm, formatHourAmPm, getNextDayOfTheWeek, isAllSafeToUse, isSafeToUse, pushLocalNotification } from '../../global/utils';
+import { findMultiPref, firstCapital, formatAmPm, formatHourAmPm, getNextDayOfTheWeek, isAllSafeToUse, isSafeToUse, pushLocalNotification } from '../../global/utils';
 import useStateWithCallback, { DispatchWithCallback } from '../../component/selectorView/useStateWithCallback';
 import { convertDateToMonthAndDay } from '../../global/utils';
 import { FlatListed, ProfilePic, SeeMoreText } from '../../global/baseView';
 import * as CONST from '../../global/const';
-import MultiSwitch from 'react-native-multiple-switch';
+import MultiSwitch from '../../component/multipleSwitch/multipleSwitch';
 import { fetchDoctorAppointment, fetchExaminationHistory, fetchUser } from '../../firebase/fireStore';
 import Spinner from 'react-native-loading-spinner-overlay';
 import Animated, { StretchInY, StretchOutY } from 'react-native-reanimated';
@@ -207,7 +207,8 @@ const DoctorDetail = ({ route, navigation }: { route: any, navigation: any }) =>
     }
   };
 
-  return <SafeAreaView style={stylesColorful(isDarkMode).backStyle}>
+  const stylesColorMain = COL.stylesColorMain(isDarkMode)
+  return <SafeAreaView style={stylesColorMain.backStyle}>
     <StatusBar translucent={false} backgroundColor={isDarkMode ? Colors.darker : Colors.lighter} barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
     <Spinner
       visible={state.spinner}
@@ -218,24 +219,24 @@ const DoctorDetail = ({ route, navigation }: { route: any, navigation: any }) =>
       cancelable={false}
       overlayColor={isDarkMode ? COL.SHADOW_WHITE : COL.SHADOW_BLACK}
     />
-    <View style={styles.mainContainer}>
-      <View style={styles.loginContainer}>
-        <View style={styles.logoContainer}>
-          <Text style={stylesColorful(isDarkMode).doctorNameStyle}>{doc.nameDoc}</Text>
-          <Text style={styles.doctorSpecialist}>{doc.specialistDoc}</Text>
+    <View style={COL.stylesMain.mainContainer}>
+      <View style={COL.stylesMain.headerContainer}>
+        <View style={COL.stylesMain.headerDetailsContainer}>
+          <Text style={COL.stylesColorMain(isDarkMode).screenTittle}>{firstCapital(doc.nameDoc)}</Text>
+          <Text style={COL.stylesMain.screenSubTittle}>{doc.specialistDoc}</Text>
         </View>
-        <View style={styles.logoContainerBack}>
-          <TouchableHighlight style={styles.menuButton} underlayColor={isDarkMode ? COL.SHADOW_BLACK : COL.SHADOW_WHITE}
+        <View style={COL.stylesMain.headerIconsContainer}>
+          <TouchableHighlight style={COL.stylesMain.menuButton} underlayColor={isDarkMode ? COL.SHADOW_BLACK : COL.SHADOW_WHITE}
             onPress={() => { navigation.goBack(); }}>
             <BackArrow color={isDarkMode ? COL.WHITE : COL.BLACK} />
           </TouchableHighlight>
-          <View style={styles.profileButton}>
+          <View style={COL.stylesMain.profileButton}>
             <TouchableHighlight
               onPress={doc.personalImage.length > 0 ? () => {
                 navigation.navigate(CONST.PROFILE_IMAGE_SCREEN, { data: doc.personalImage, isDark: isDarkMode });
               } : undefined}
               underlayColor={COL.MAIN_WHITER}>
-              <ProfilePic style={styles.doctorImage} uri={doc.personalImage} />
+              <ProfilePic style={COL.stylesMain.profilePic} uri={doc.personalImage} />
             </TouchableHighlight>
           </View>
         </View>
@@ -244,25 +245,25 @@ const DoctorDetail = ({ route, navigation }: { route: any, navigation: any }) =>
         overScrollMode={'always'}
         keyboardShouldPersistTaps={'handled'}
         keyboardDismissMode={'interactive'}
-        contentContainerStyle={styles.scrollStyle}>
+        contentContainerStyle={COL.stylesMain.scrollStyle}>
         <SeeMoreText isDarkMode={isDarkMode} seeMoreTxt={doc.doctorBio} subAfter={300} tittle={'Doctor Bio'} />
         <View style={styles.bookButtonContainer}>
           <TouchableHighlight
             style={styles.displayCerButton}
             onPress={() => { navigation.navigate(CONST.CERTIFICATES_SCREEN, { isDark: isDarkMode, data: doc.doctorAuth }); }}
             underlayColor={COL.MAIN_WHITER}>
-            <View style={styles.logoContainerLin}>
-              <View style={StyleSheet.flatten({ width: 30, height: 30, marginTop: 8, resizeMode: 'contain', marginEnd: 5, marginStart: 15 })}>
+            <View style={styles.certificateViewContainer}>
+              <View style={styles.certificateIconContainer}>
                 <CertificateView color={COL.WHITE} />
               </View>
               <Text style={styles.certificateTextBottom}>Certificates</Text>
             </View>
           </TouchableHighlight>
         </View>
-        <View style={stylesColorful(isDarkMode).backListStyle}>
-          <View style={styles.toggleContainerBack}>
-            <View style={styles.menuButton} />
-            <View style={styles.toggleViewStyle}>
+        <View style={stylesColorMain.backListFourCorner}>
+          <View style={COL.stylesMain.toggleContainerBack}>
+            <View style={COL.stylesMain.menuButton} />
+            <View style={COL.stylesMain.toggleViewStyle}>
               <MultiSwitch
                 value={state.toggle}
                 items={toggleItems}
@@ -270,12 +271,12 @@ const DoctorDetail = ({ route, navigation }: { route: any, navigation: any }) =>
                   loadDetails(value)
                   dispatch({ toggle: value })
                 }}
-                containerStyle={stylesColorful(isDark).toggleView}
+                containerStyle={stylesColorMain.toggleView}
                 sliderStyle={{
                   backgroundColor: COL.MAIN,
                 }}
-                textStyle={stylesColorful(isDarkMode).textToggleStyle}
-                activeTextStyle={styles.activeToggleStyle}
+                textStyle={stylesColorMain.textToggleStyle}
+                activeTextStyle={COL.stylesMain.activeToggleStyle}
               />
             </View>
           </View>
@@ -316,23 +317,25 @@ const DoctorDetail = ({ route, navigation }: { route: any, navigation: any }) =>
 function recyclerChildExamination(value: ExaminationSack, isDarkMode: boolean, press: () => void) {
   const tittle = value.examinationName.length !== 0 ? value.examinationName : value.communicationMethods.doctorName + ' ' + convertDateToMonthAndDay(value.date) + '-' + formatAmPm(value.date);
 
-  return <View style={styles.historyAppContainer} key={value.date}>
-    <TouchableHighlight style={styles.mainDoctorStyle}
+  return <View style={COL.stylesMain.mainFlatListContainer} key={value.date}>
+    <TouchableHighlight style={COL.stylesMain.touchableFlatListContainer}
       onPress={press}
       underlayColor={isDarkMode ? COL.SHADOW_BLACK : COL.SHADOW_WHITE}>
-      <View style={styles.mainDoctorContent}>
-        <View style={styles.doctorContainer}>
-          <ProfilePic style={styles.doctorImage} uri={value.communicationMethods.doctorImg} />
+      <View style={COL.stylesMain.subTouchableFlatList}>
+        <View style={COL.stylesMain.profilePicContainer}>
+          <ProfilePic style={COL.stylesMain.profilePic} uri={value.communicationMethods.doctorImg} />
         </View>
-        <View style={styles.doctorContainerNameStyle}>
-          <Text style={stylesColorful(isDarkMode).doctorNameStyle}>{tittle}</Text>
-          <Text style={styles.doctorSpecialist}>{value.clientNote}</Text>
+        <View style={COL.stylesMain.flatListDetailsContainer}>
+          <Text style={[COL.stylesColorMain(isDarkMode).screenTittle, { marginTop: 10 }]}>{firstCapital(tittle)}</Text>
+          <View style={COL.stylesMain.subFlatListDetails}>
+            <Text style={COL.stylesMain.flatListSubTittle}>{value.clientNote}</Text>
+            <View style={COL.stylesMain.flatListDetailsIcon}>
+              <DonePending isDone={value.doctorAccepted} />
+            </View>
+          </View>
         </View>
-        <View style={styles.leftArrowStyle}>
-          <DonePending isDone={value.doctorAccepted} />
-        </View>
-        <View style={styles.bottomLineContainerStyle}>
-          <View style={styles.bottomLineStyle} />
+        <View style={COL.stylesMain.bottomLineFlatListContainer}>
+          <View style={COL.stylesMain.bottomLineFlatList} />
         </View>
       </View>
     </TouchableHighlight>
@@ -344,8 +347,10 @@ function recyclerChild(value: AppointmentSack, isDarkMode: boolean, selectedStat
   value.appointments.forEach((valueR) => {
     dates.push({ id: ('' + value.dayId + '/*/' + valueR.hour), name: formatHourAmPm(valueR.hour) });
   });
+
+  const stylesColorMain = COL.stylesColorMain(isDarkMode)
   return <View style={styles.mainAppContainer}>
-    <Text style={stylesColorful(isDarkMode).doctorNameStyle}>{CONST.DAYS_FOR_PICKER[value.dayId].name}</Text>
+    <Text style={COL.stylesColorMain(isDarkMode).screenTittle}>{CONST.DAYS_FOR_PICKER[value.dayId].name}</Text>
     <TagSelectOne
       data={dates}
       onChange={(selectedItem: ICheckboxButton) => {
@@ -353,18 +358,44 @@ function recyclerChild(value: AppointmentSack, isDarkMode: boolean, selectedStat
         onChange([Number(selectedAndDayHour[0]), Number(selectedAndDayHour[1])])
       }}
       selectState={selectedState}
-      itemStyle={stylesColorful(isDarkMode).itemStyle}
-      itemStyleSelected={stylesColorful(isDarkMode).itemStyleSelected}
+      itemStyle={stylesColorMain.toggleItemStyle}
+      itemStyleSelected={stylesColorMain.toggleItemStyleSelected}
       itemLabelStyle={{ color: isDarkMode ? COL.BLACK_55 : COL.WHITE_196 }}
       itemLabelStyleSelected={{ color: COL.BLACK }} />
   </View>;
 }
 
+
 const styles = StyleSheet.create({
-  pageContainer: {
-    margin: 20,
+  displayCerButton: {
+    width: 150,
+    height: 45,
+    backgroundColor: COL.MAIN,
+    borderRadius: 15,
+    elevation: 10,
+    margin: 10,
+    shadowColor: COL.WHITE,
     alignItems: 'center',
+  },
+  mainAppContainer: {
     flexDirection: 'column',
+    justifyContent: 'flex-start',
+    flex: 1,
+    flexWrap: 'wrap',
+    width: '100%',
+    margin: 7,
+  },
+  certificateViewContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  certificateIconContainer: {
+    width: 30,
+    height: 30,
+    marginTop: 8,
+    resizeMode: 'contain',
+    marginEnd: 5,
+    marginStart: 15
   },
   certificateTextBottom: {
     fontWeight: '700',
@@ -375,94 +406,10 @@ const styles = StyleSheet.create({
     color: COL.WHITE,
     textTransform: 'capitalize',
   },
-  page: {
-    marginTop: 30,
-    alignItems: 'center',
-    flexDirection: 'column',
-  },
-  loginContainer: {
-    width: '100%',
-    height: 80,
-    alignSelf: 'baseline',
-  },
-  scrollHeaderContainer: {
-    width: '100%',
-    height: 50,
-    alignSelf: 'baseline',
-    position: 'absolute',
-    backgroundColor: '#00000030',
-  },
-  menuButton: {
-    width: 48,
-    height: 48,
-    marginTop: 5,
-    padding: 13,
-    borderRadius: 24,
-  },
-  profileButton: { width: 69, height: 66, borderRadius: 33, overflow: 'hidden', marginEnd: 5 },
-  logoContainerBack: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    position: 'absolute',
-    width: '100%',
-  },
-  mainContainer: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    flex: 1,
-  },
-  mainAppContainer: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    flex: 1,
-    flexWrap: 'wrap',
-    width: '100%',
-    margin: 7,
-  },
-  historyAppContainer: {
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    flex: 1,
-    flexWrap: 'wrap',
-    width: '100%',
-  },
-  logoContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-    width: '100%',
-    height: '100%',
-  },
-  logoContainerLin: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoContainerVer: {
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  logoStyle: {
-    width: 50,
-    height: 50,
-    resizeMode: 'contain',
-    marginEnd: 10,
-  },
-  docImageStyle: {
-    width: 249,
-    height: 302,
-    marginTop: 30,
-  },
   textStyle: {
     fontSize: 20,
     fontWeight: 'bold',
     textTransform: 'capitalize',
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
   },
   textBottom: {
     fontWeight: '700',
@@ -474,66 +421,6 @@ const styles = StyleSheet.create({
     color: COL.WHITE,
     textTransform: 'capitalize',
   },
-  bottomContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: navbarHeight,
-  },
-  searchView: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  mainDoctorStyle: {
-    width: '100%',
-    height: 80,
-    borderRadius: 20,
-  },
-  mainDoctorContent: {
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  doctorContainer: {
-    width: 69,
-    height: 66,
-    borderRadius: 33,
-    overflow: 'hidden',
-    marginStart: 10,
-  },
-  doctorImage: {
-    width: 69,
-    height: 66,
-  },
-  doctorContainerNameStyle: {
-    marginStart: 10,
-  },
-  doctorSpecialist: {
-    marginStart: 10,
-    fontWeight: '500',
-    fontSize: 18,
-    color: COL.MAIN,
-  },
-  leftArrowStyle: {
-    width: 15,
-    height: 15,
-    marginStart: 50,
-  },
-  bottomLineContainerStyle: {
-    width: '100%',
-    height: 2,
-    position: 'absolute',
-    paddingStart: 40,
-    paddingEnd: 40,
-    bottom: 0,
-  },
-  bottomLineStyle: {
-    width: '100%',
-    height: 2,
-    backgroundColor: COL.MAIN,
-    bottom: 0,
-  },
   bookButtonContainer: {
     alignItems: 'center',
     justifyContent: 'center',
@@ -544,77 +431,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     height: 60,
   },
-  scrollStyle: {
-    flexGrow: 1,
-    justifyContent: 'flex-end',
-    flex: 0,
-  },
-  displayCerButton: {
-    width: 150,
-    height: 45,
-    backgroundColor: COL.MAIN,
-    borderRadius: 15,
-    elevation: 10,
-    marginStart: 10,
-    marginEnd: 10,
-    shadowColor: COL.WHITE,
-    alignItems: 'center',
-  },
-  toggleViewStyle: {
-    padding: 10,
-    marginEnd: 10,
-    width: 180,
-  },
-  activeToggleStyle: {
-    color: COL.WHITE,
-    fontSize: 14,
-    fontWeight: '300',
-  },
-  toggleContainerBack: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingEnd: 5,
-    justifyContent: 'space-between',
-    width: '100%',
-  },
 });
 
 
 const stylesColorful = (isDark: boolean) => {
   return StyleSheet.create({
-    backStyle: {
-      backgroundColor: isDark ? Colors.darker : Colors.lighter,
-      width: '100%',
-      height: '100%',
-    },
     doctorNameStyle: {
       fontWeight: '700',
       fontSize: 18,
       color: isDark ? COL.WHITE : COL.BLACK,
     },
-    backListStyle: {
-      borderRadius: 20,
-      shadowColor: COL.MAIN,
-      marginStart: 20,
-      marginEnd: 20,
-      elevation: 15,
-      backgroundColor: isDark ? Colors.darker : Colors.lighter,
-      flex: 1,
-      margin: 7,
-    },
-    itemStyle: {
-      backgroundColor: isDark ? COL.WHITE_196 : COL.BLACK_55,
-      borderColor: isDark ? COL.WHITE_196 : COL.BLACK_55,
-    },
-    itemStyleSelected: {
-      backgroundColor: COL.MAIN,
-      borderColor: COL.MAIN,
-    },
     bottomButton: {
       width: 150,
       height: 50,
-      backgroundColor: isDark ? COL.GREY : COL.MAIN,
+      backgroundColor: COL.RED,
       borderRadius: 25,
       elevation: 10,
       marginStart: 10,
@@ -623,9 +453,7 @@ const stylesColorful = (isDark: boolean) => {
       alignItems: 'center',
     },
     joinButton: {
-      width: 150,
-      height: 50,
-      backgroundColor: isDark ? COL.GREY : COL.GREEN_CALL,
+      backgroundColor: COL.GREEN_CALL,
       borderRadius: 10,
       elevation: 10,
       marginStart: 10,
@@ -633,18 +461,7 @@ const stylesColorful = (isDark: boolean) => {
       shadowColor: COL.WHITE,
       alignItems: 'center',
     },
-    toggleView: {
-      backgroundColor: isDark ? COL.BLACK_55 : COL.WHITE_196,
-      height: 40,
-      width: 180,
-    },
-    textToggleStyle: {
-      color: isDark ? COL.WHITE : COL.BLACK,
-      fontSize: 14,
-      fontWeight: '300',
-    },
   });
 };
-
 
 export default DoctorDetail;

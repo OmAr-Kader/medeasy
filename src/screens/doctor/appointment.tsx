@@ -226,7 +226,8 @@ const AppointmentDoctorScreen = ({ route, navigation }: { route: any, navigation
         }
     };
 
-    return <SafeAreaView style={stylesColorful(isDarkMode).backStyle}>
+    const stylesColorMain = COL.stylesColorMain(isDarkMode)
+    return <SafeAreaView style={stylesColorMain.backStyle}>
         <StatusBar translucent={false} backgroundColor={isDarkMode ? Colors.darker : Colors.lighter} barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <Spinner
             visible={state.spinner}
@@ -237,8 +238,8 @@ const AppointmentDoctorScreen = ({ route, navigation }: { route: any, navigation
             cancelable={false}
             overlayColor={isDarkMode ? COL.SHADOW_WHITE : COL.SHADOW_BLACK}
         />
-        <View style={styles.mainContainer}>
-            <View style={styles.loginContainer}>
+        <View style={COL.stylesMain.mainContainer}>
+            <View style={COL.stylesMain.headerContainer}>
                 <View style={styles.titleScreenContainer}>
                     <EditSaveTextInput
                         isDarkMode={isDarkMode}
@@ -270,14 +271,15 @@ const AppointmentDoctorScreen = ({ route, navigation }: { route: any, navigation
                         <Text style={styles.doctorSpecialist}>{'Mr.' + firstCapital(examination.communicationMethods.clientName)}</Text>
                     </TouchableHighlight>
                 </View>
-                <View style={styles.logoContainerBack}>
-                    <TouchableHighlight style={styles.menuButton} underlayColor={isDarkMode ? COL.SHADOW_BLACK : COL.SHADOW_WHITE}
+                <View style={COL.stylesMain.headerIconsContainer}>
+                    <TouchableHighlight style={COL.stylesMain.menuButton} underlayColor={isDarkMode ? COL.SHADOW_BLACK : COL.SHADOW_WHITE}
                         onPress={() => navigation.goBack()}>
                         <BackArrow color={isDarkMode ? COL.WHITE : COL.BLACK} />
                     </TouchableHighlight>
-                    <View style={styles.profileButton}>
+                    <View style={COL.stylesMain.profileButton}>
                         <TouchableHighlight
                             onPress={() => {
+                                updateSpinner(true)
                                 fetchUserByDocument(examination.communicationMethods.clientID, (doctor) => {
                                     updateSpinner(false);
                                     navigation.replace(CONST.CLIENT_DETAIL, { data: doctor?.asJsonAll(), isDark: isDarkMode, doctorDocID: examination.communicationMethods.doctorID });
@@ -287,7 +289,7 @@ const AppointmentDoctorScreen = ({ route, navigation }: { route: any, navigation
                                 });
                             }}
                             underlayColor={COL.MAIN_WHITER}>
-                            <ProfilePic style={styles.doctorImage} uri={examination.communicationMethods.clientImg} />
+                            <ProfilePic style={COL.stylesMain.profilePic} uri={examination.communicationMethods.clientImg} />
                         </TouchableHighlight>
                     </View>
                 </View>
@@ -296,7 +298,7 @@ const AppointmentDoctorScreen = ({ route, navigation }: { route: any, navigation
                 overScrollMode={'always'}
                 keyboardShouldPersistTaps={'handled'}
                 keyboardDismissMode={'interactive'}
-                contentContainerStyle={styles.scrollStyle}>
+                contentContainerStyle={COL.stylesMain.scrollStyle}>
                 <View style={stylesColorful(isDarkMode).bioStyleMain}>
                     <View style={stylesColorful(isDarkMode).bioStyle}>
                         <Text style={stylesColorful(isDarkMode).bioTextTitleStyle}>Main complaint</Text>
@@ -324,7 +326,7 @@ const AppointmentDoctorScreen = ({ route, navigation }: { route: any, navigation
                             }, () => pushLocalNotification('Failed', '', false));
                         }} />
                 </View>
-                <View style={stylesColorful(isDarkMode).backListStyle}>
+                <View style={stylesColorMain.backListFourCorner}>
                     <Text style={stylesColorful(isDarkMode).medTextTitleStyle}>Treatments</Text>
                     <TouchableHighlight
                         style={state.doctorAccepted ? styles.addButton : styles.addButtonHidden}
@@ -336,6 +338,7 @@ const AppointmentDoctorScreen = ({ route, navigation }: { route: any, navigation
                         <FlatListed
                             data={state.dataList}
                             renderItem={renderItem}
+                            scrollEnabled={false}
                             isDarkMode={isDarkMode}
                             emptyMessage={state.spinner ? '' : 'No treatments yet'} />
                     </View>
@@ -520,11 +523,6 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
     },
     dialogStyle: { borderRadius: 20 },
-    loginContainer: {
-        width: '100%',
-        height: 80,
-        alignSelf: 'baseline',
-    },
     scrollHeaderContainer: {
         width: '100%',
         height: 50,
@@ -532,14 +530,6 @@ const styles = StyleSheet.create({
         position: 'absolute',
         backgroundColor: '#00000030',
     },
-    menuButton: {
-        width: 48,
-        height: 48,
-        marginTop: 5,
-        padding: 13,
-        borderRadius: 24,
-    },
-    profileButton: { width: 69, height: 66, borderRadius: 33, overflow: 'hidden', marginEnd: 5 },
     profileButtonHidden: {
         width: 0,
         height: 0,
@@ -565,19 +555,6 @@ const styles = StyleSheet.create({
     addButtonHidden: {
         width: 0,
         height: 0,
-    },
-    logoContainerBack: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        position: 'absolute',
-        width: '100%',
-    },
-    mainContainer: {
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        flex: 1,
     },
     mainAppContainer: {
         flexDirection: 'column',
@@ -678,10 +655,6 @@ const styles = StyleSheet.create({
         paddingTop: 7,
         paddingBottom: 7,
     },
-    doctorImage: {
-        width: 69,
-        height: 66,
-    },
     doctorContainerNameStyle: {
         marginStart: 10,
         width: '100%',
@@ -735,11 +708,6 @@ const styles = StyleSheet.create({
         height: 0,
         width: 0,
     },
-    scrollStyle: {
-        flexGrow: 1,
-        justifyContent: 'flex-end',
-        flex: 0,
-    },
     displayCerButton: {
         width: 150,
         height: 45,
@@ -780,18 +748,15 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     flatListStyle: {
-        marginTop: 15,
+        marginTop: 20,
+        width: '100%',
+        minHeight: 100,
     },
 });
 
 
 const stylesColorful = (isDark: boolean) => {
     return StyleSheet.create({
-        backStyle: {
-            backgroundColor: isDark ? Colors.darker : Colors.lighter,
-            width: '100%',
-            height: '100%',
-        },
         doctorNameStyle: {
             fontWeight: '700',
             fontSize: 18,
@@ -860,17 +825,8 @@ const stylesColorful = (isDark: boolean) => {
             fontWeight: '500',
             marginStart: 10,
             marginTop: 10,
+            textAlign: 'left',
             color: isDark ? COL.WHITE : COL.BLACK,
-        },
-        backListStyle: {
-            borderRadius: 20,
-            shadowColor: COL.MAIN,
-            marginStart: 20,
-            marginEnd: 20,
-            elevation: 15,
-            backgroundColor: isDark ? Colors.darker : Colors.lighter,
-            flex: 1,
-            margin: 7,
         },
         bottomButton: {
             width: 150,

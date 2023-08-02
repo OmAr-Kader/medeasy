@@ -9,8 +9,6 @@ import { FetchIsDarkMode } from '../../global/dims';
 import { MedicineSack, jsonToExamination } from '../../global/model';
 import * as COL from '../../global/styles';
 import { appointmentTitle, appointmentTitleForDoctor, copyToClip, findPref, firstCapital, pushLocalNotification } from '../../global/utils';
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { sendFcmMessage } from '../../firebase/firebaseMessaging';
 
@@ -98,7 +96,8 @@ const AppointmentScreen = ({ route, navigation }: { route: any, navigation: any 
         }
     };
 
-    return <SafeAreaView style={stylesColorful(isDarkMode).backStyle}>
+    const stylesColorMain = COL.stylesColorMain(isDarkMode)
+    return <SafeAreaView style={stylesColorMain.backStyle}>
         <StatusBar translucent={false} backgroundColor={isDarkMode ? Colors.darker : Colors.lighter} barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
         <Spinner
             visible={state.spinner}
@@ -109,8 +108,8 @@ const AppointmentScreen = ({ route, navigation }: { route: any, navigation: any 
             cancelable={false}
             overlayColor={isDarkMode ? COL.SHADOW_WHITE : COL.SHADOW_BLACK}
         />
-        <View style={styles.mainContainer}>
-            <View style={styles.loginContainer}>
+        <View style={COL.stylesMain.mainContainer}>
+            <View style={COL.stylesMain.headerContainer}>
                 <View style={styles.titleScreenContainer}>
                     <EditSaveTextInput
                         isDarkMode={isDarkMode}
@@ -146,12 +145,12 @@ const AppointmentScreen = ({ route, navigation }: { route: any, navigation: any 
                         <Text style={styles.doctorSpecialist}>{'Dr.' + firstCapital(examination.communicationMethods.doctorName)}</Text>
                     </TouchableHighlight>
                 </View>
-                <View style={styles.logoContainerBack}>
-                    <TouchableHighlight style={styles.menuButton} underlayColor={isDarkMode ? COL.SHADOW_BLACK : COL.SHADOW_WHITE}
+                <View style={COL.stylesMain.headerIconsContainer}>
+                    <TouchableHighlight style={COL.stylesMain.menuButton} underlayColor={isDarkMode ? COL.SHADOW_BLACK : COL.SHADOW_WHITE}
                         onPress={() => navigation.goBack()}>
                         <BackArrow color={isDarkMode ? COL.WHITE : COL.BLACK} />
                     </TouchableHighlight>
-                    <View style={styles.profileButton}>
+                    <View style={COL.stylesMain.profileButton}>
                         <TouchableHighlight
                             onPress={mode === CONST.EDIT_SAVE_NOT_EDITABLE_INTI_YES || mode === CONST.EDIT_SAVE_ALL_OFF ? undefined : () => {
                                 updateSpinner(true);
@@ -164,7 +163,7 @@ const AppointmentScreen = ({ route, navigation }: { route: any, navigation: any 
                                 });
                             }}
                             underlayColor={COL.MAIN_WHITER}>
-                            <ProfilePic style={styles.doctorImage} uri={examination.communicationMethods.doctorImg} />
+                            <ProfilePic style={COL.stylesMain.profilePic} uri={examination.communicationMethods.doctorImg} />
                         </TouchableHighlight>
                     </View>
                 </View>
@@ -173,7 +172,7 @@ const AppointmentScreen = ({ route, navigation }: { route: any, navigation: any 
                 overScrollMode={'always'}
                 keyboardShouldPersistTaps={'handled'}
                 keyboardDismissMode={'interactive'}
-                contentContainerStyle={styles.scrollStyle}>
+                contentContainerStyle={COL.stylesMain.scrollStyle}>
                 <View style={stylesColorful(isDarkMode).bioStyleMain}>
                     <View style={stylesColorful(isDarkMode).bioStyle}>
                         <Text style={stylesColorful(isDarkMode).bioTextTitleStyle}>Main complaint</Text>
@@ -202,7 +201,7 @@ const AppointmentScreen = ({ route, navigation }: { route: any, navigation: any 
                     <Text style={stylesColorful(isDarkMode).bioTextTitleStyle}>Doctor's diagnosis</Text>
                     <Text style={stylesColorful(isDarkMode).doctorNameStyle}>{examination.doctorNote}</Text>
                 </View>
-                <View style={stylesColorful(isDarkMode).backListStyle}>
+                <View style={stylesColorMain.backListFourCorner}>
                     <Text style={stylesColorful(isDarkMode).medTextTitleStyle}>Treatments</Text>
                     <TouchableHighlight
                         style={examination.medicines.length !== 0 ? styles.addButton : styles.addButtonHidden}
@@ -266,19 +265,6 @@ const styles = StyleSheet.create({
         padding: 5,
         marginTop: -10,
     },
-    loginContainer: {
-        width: '100%',
-        height: 80,
-        alignSelf: 'baseline',
-    },
-    menuButton: {
-        width: 48,
-        height: 48,
-        marginTop: 5,
-        padding: 13,
-        borderRadius: 24,
-    },
-    profileButton: { width: 69, height: 66, borderRadius: 33, overflow: 'hidden', marginEnd: 5 },
     addButton: {
         width: 50,
         height: 50,
@@ -300,19 +286,6 @@ const styles = StyleSheet.create({
     addButtonHidden: {
         width: 0,
         height: 0,
-    },
-    logoContainerBack: {
-        alignItems: 'center',
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        position: 'absolute',
-        width: '100%',
-    },
-    mainContainer: {
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        flex: 1,
     },
     historyAppContainer: {
         flexDirection: 'column',
@@ -365,10 +338,6 @@ const styles = StyleSheet.create({
         paddingTop: 7,
         paddingBottom: 7,
     },
-    doctorImage: {
-        width: 69,
-        height: 66,
-    },
     doctorContainerNameStyle: {
         marginStart: 10,
         width: '100%',
@@ -410,11 +379,6 @@ const styles = StyleSheet.create({
         height: 0,
         width: 0,
     },
-    scrollStyle: {
-        flexGrow: 1,
-        justifyContent: 'flex-end',
-        flex: 0,
-    },
     flatListStyle: {
         marginTop: 15,
     },
@@ -423,11 +387,6 @@ const styles = StyleSheet.create({
 
 const stylesColorful = (isDark: boolean) => {
     return StyleSheet.create({
-        backStyle: {
-            backgroundColor: isDark ? Colors.darker : Colors.lighter,
-            width: '100%',
-            height: '100%',
-        },
         doctorNameStyle: {
             fontWeight: '700',
             fontSize: 18,
@@ -494,19 +453,9 @@ const stylesColorful = (isDark: boolean) => {
         bioTextStyle: {
             fontSize: 16,
             fontWeight: '500',
-            textAlign: 'center',
+            textAlign: 'left',
             marginStart: 10,
             color: isDark ? COL.WHITE : COL.BLACK,
-        },
-        backListStyle: {
-            borderRadius: 20,
-            shadowColor: COL.MAIN,
-            marginStart: 20,
-            marginEnd: 20,
-            elevation: 15,
-            backgroundColor: isDark ? Colors.darker : Colors.lighter,
-            flex: 1,
-            margin: 7,
         },
         bottomButton: {
             width: 150,

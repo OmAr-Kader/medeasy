@@ -1,3 +1,26 @@
+export const CLIENT_ID: string = '';
+export const SERVER_API_KEY: string = '';
+export const APP_ID = '';
+export const API_KEY = '';
+export const DATABASE_URL = '';
+export const STORAGE_BUCKET = '';
+export const MESSAGING_SENDER_ID = '';
+export const PROJECT_ID = '';
+export const AUTH_DOMAIN = '';
+
+export const ZEGO_APP_ID = 0;
+export const ZEGO_APP_SIGN = '';
+export const ZEGO_STREAM_URL = '';
+export const ZEGO_SERVER_SECRET = '';
+export const TEMP_TOKEN_2 = '';
+export const TEMP_TOKEN_1 = '';
+
+export const USER_DOCUMENT_ID = 'userDocId'
+export const USER_ID_AUTH = 'userAuthId';
+export const USER_IS_DOCTOR = 'isDoctor'
+export const TOGGLE_HOME = 'toggleHome'
+export const FCM_TOKEN = 'fcmToken';
+
 export const LOG_In = 'logIn';
 export const LOG_In_ADMIN = 'logInAdmin';
 export const SPLASH_SCREEN = 'screenScreen';
@@ -36,12 +59,6 @@ export const FCM_NEW_DOCTOR_CONFIRMATION = 8;
 export const FCM_ADMIN_CONFIRM_NEW_DOCTOR = 9;
 export const FCM_ADMIN_REJECT_NEW_DOCTOR = 10;
 
-export const USER_DOCUMENT_ID = 'userDocId';
-export const USER_ID_AUTH = 'userAuthId';
-export const USER_IS_DOCTOR = 'isDoctor';
-export const TOGGLE_HOME = 'toggleHome';
-export const FCM_TOKEN = 'fcmToken';
-
 export const FCM_TOPIC = 'fcmTopic';
 
 export const NOTIFICATION_NAVIGATOR = 'notificationNavigator';
@@ -56,16 +73,6 @@ export const EXAMINATIONS_COLLECTION = 'examinations';
 
 export const PERSONAL_IMG = 'personalImg';
 
-export const CLIENT_ID: string = '';
-export const SERVER_API_KEY: string = '';
-export const APP_ID = '';
-export const API_KEY = '';
-export const DATABASE_URL = '';
-export const STORAGE_BUCKET = '';
-export const MESSAGING_SENDER_ID = '';
-export const PROJECT_ID = '';
-export const AUTH_DOMAIN = '';
-
 export const CREDENTIAL_FIREBASE = {
     clientId: CLIENT_ID,
     appId: APP_ID,
@@ -77,18 +84,11 @@ export const CREDENTIAL_FIREBASE = {
     authDomain: AUTH_DOMAIN,
 };
 
-export const ZEGO_APP_ID = 0;
-export const ZEGO_APP_SIGN = '';
-export const ZEGO_STREAM_URL = '';
-export const ZEGO_SERVER_SECRET =  '';
-export const TEMP_TOKEN_2 = '';
-export const TEMP_TOKEN_1 = '';
-
 export const CLIENT_SESSION_QUARTER = 1;
 export const CLIENT_SESSION_HALF = 2;
 export const CLIENT_SESSION_HOUR = 3;
 
-export const DAYS_FOR_PICKER: PairTwoSack [] = [
+export const DAYS_FOR_PICKER: PairTwoSack[] = [
     { id: 0, name: 'SUN' }, { id: 1, name: 'MON' }, { id: 2, name: 'TUE' }, { id: 3, name: 'WED' }, { id: 4, name: 'THU' }, { id: 5, name: 'FRI' }, { id: 6, name: 'SAT' }
 ]
 

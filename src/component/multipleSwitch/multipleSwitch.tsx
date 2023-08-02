@@ -10,8 +10,7 @@ import {
     View,
     ViewStyle,
 } from 'react-native'
-// import useStyle from './style'
-import styles from 'react-native-multiple-switch/style'
+import styles from './style'
 
 interface Props {
     items: Array<string>
@@ -30,9 +29,9 @@ interface Props {
     activeTextStyle?: StyleProp<TextStyle>
 }
 
-const MultipleSwitch: FC<Props> = (props) => {
+const MultiSwitch: FC<Props> = (props) => {
     // const { styles } = useStyle()
-    const { width } = useWindowDimensions()
+    const [screenWidth, seScreenWidth] = useState(useWindowDimensions() .width)
     const [items, setItems] = useState(props.items)
     const [elements, setElements] = useState<{ id: string; value: number }[]>([])
     const [active, setActive] = useState(props.value)
@@ -42,13 +41,31 @@ const MultipleSwitch: FC<Props> = (props) => {
     useEffect(() => {
         setItems(props.items)
         setElements([])
-    }, [width])
+    }, [screenWidth])
 
+    /*useEffect(() => {
+        console.log('aaa' + screenWidth);
+        const subscription = Dimensions.addEventListener('change', (it) => {
+            const aaa = useWindowDimensions().width
+            console.log('aaa' + aaa);
+            seScreenWidth(aaa)
+            //insertElements()
+            //valueChanged()
+        });
+        return () => {
+          subscription.remove();
+        };
+    }, [])*/
+    
     useEffect(() => {
+        insertElements()
+    }, [elements])
+    
+    const insertElements = () => {
         if (elements.length === props.items.length) {
             const position = elements.find((el) => el.id === props.value)
             Animated.timing(animatedValue, {
-                toValue: position ? position.value : -width, // set position out of bounds if !position
+                toValue: position ? position.value : -screenWidth, // set position out of bounds if !position
                 duration: 0,
                 easing: Easing.linear,
                 useNativeDriver: true,
@@ -64,7 +81,7 @@ const MultipleSwitch: FC<Props> = (props) => {
                 }).start()
             })
         }
-    }, [elements])
+    }
 
     const getContainerStyle = () => {
         return [
@@ -88,12 +105,16 @@ const MultipleSwitch: FC<Props> = (props) => {
     }
 
     useEffect(() => {
+        valueChanged()
+    }, [props.value]);
+
+    const valueChanged = () => {
         const value = props.value;
         const act = active;
         if (value !== undefined && value !== act) {
             startAnimation(value)
         }
-    }, [props.value]);
+    }
 
     const getSliderWidth = () => {
         return 100 / props.items.length + '%'
@@ -164,4 +185,4 @@ const MultipleSwitch: FC<Props> = (props) => {
     )
 }
 
-export default MultipleSwitch
+export default MultiSwitch
