@@ -100,7 +100,6 @@ function App() {
       </NotifierWrapper>
     </GestureHandlerRootView>
   );
-  /**/
 }
 
 export default App;

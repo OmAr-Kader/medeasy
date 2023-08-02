@@ -460,7 +460,7 @@ export const jsonToCommunication = (json: any): CommunicationSack => {
     clientName: `${json.clientName}`,
     clientImg: `${json.clientImg}`,
     userFcmToken: `${json.userFcmToken}`,
-  });
+  }); 
 };
 
 export class MedicineSack {

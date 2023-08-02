@@ -6,12 +6,16 @@ import React from 'react';
 import NetInfo from '@react-native-community/netinfo';
 import { Notifier, NotifierComponents } from 'react-native-notifier';
 
+export const logger = (a: any) => {
+    console.log('LOGGER => ' + a);
+}
+
 export const pushLocalNotification = (tittle: string, body: string, isSuccess: boolean) => {
     Notifier.showNotification({
         title: tittle,
         description: body,
         Component: NotifierComponents.Alert,
-        duration: 500,
+        duration: 3000,
         componentProps: {
             alertType: isSuccess ? 'success' : 'error',
         },
@@ -92,7 +96,7 @@ export const findPref = (key: string, invoke: (value: string) => void, failed: (
         value !== null ? invoke(value) : failed();
     }).catch((e) => {
         failed();
-        console.log('AsyncStorage: ' + e);
+        logger('AsyncStorage: ' + e);
     });
 };
 
@@ -101,7 +105,7 @@ export const findPrefOrNull = (key: string, invoke: (value: string | null) => vo
         invoke(value);
     }).catch((e) => {
         failed();
-        console.log('AsyncStorage: ' + e);
+        logger('AsyncStorage: ' + e);
     });
 };
 
@@ -110,7 +114,7 @@ export const findMultiPref = (key: string[], invoke: (values: readonly KeyValueP
         invoke(values);
     }).catch((e) => {
         failed();
-        console.log('AsyncStorage: ' + e);
+        logger('AsyncStorage: ' + e);
     });
 };
 
@@ -119,7 +123,7 @@ export const updatePref = (key: string, value: string, invoke: () => void, faile
         invoke();
     }).catch((e) => {
         failed?.();
-        console.log('AsyncStorage: ' + e);
+        logger('AsyncStorage: ' + e);
     });
 };
 
@@ -128,7 +132,7 @@ export const updateMuliPref = (keyVale: [string, string][], invoke: () => void, 
         invoke();
     }).catch((e) => {
         failed();
-        console.log('AsyncStorage: ' + e);
+        logger('AsyncStorage: ' + e);
     });
 };
 
@@ -137,7 +141,7 @@ export const removeMultiPref = (keys: string[], invoke: () => void, failed?: () 
         invoke();
     }).catch((e) => {
         failed?.();
-        console.log('AsyncStorage: Remove ' + e);
+        logger('AsyncStorage: Remove ' + e);
     });
 };
 

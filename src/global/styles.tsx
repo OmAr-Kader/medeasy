@@ -180,6 +180,14 @@ export const stylesColorMain = (isDark: boolean) => {
             marginEnd: 60,
             color: isDark ? WHITE : BLACK,
         },
+        flatListTittle: {
+            fontWeight: '700',
+            fontSize: 18,
+            marginTop: 10,
+            marginEnd: 10,
+            textAlign: 'left',
+            color: isDark ? WHITE : BLACK,
+        },
         toggleView: {
             backgroundColor: isDark ? BLACK_55 : WHITE_196,
             height: 40,
