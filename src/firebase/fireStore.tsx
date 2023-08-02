@@ -1,7 +1,7 @@
 import firestore from '@react-native-firebase/firestore';
 import { intiFirebase } from './fireAuth';
 import { checkPermissionTokenFirst } from './firebaseMessaging';
-import { isArraySafeToJson, updateMuliPref, updatePref } from '../global/utils';
+import { logger, updateMuliPref, updatePref } from '../global/utils';
 import * as M from '../global/model';
 import * as CONST from '../global/const';
 
@@ -11,7 +11,7 @@ export const fireBaseCreate = (collection: string, doc: M.UserSack | M.DoctorSac
             done(docRef.id);
         }).catch((e) => {
             failed();
-            console.log('Error: fireBaseCreate ' + e);
+            logger('Error: fireBaseCreate ' + e);
         });
     });
 };
@@ -21,14 +21,14 @@ export const fireBaseGet = (collection: string, documentId: string, done: (any: 
         firestore(app).collection(collection).doc(documentId.trim()).get().then((docRef) => {
             const docRefDocs = docRef;
             if (docRefDocs === null) {
-                console.log('Error: #fetchUser ' + 'docRefDocs === null || docRefDocs.length === 0');
+                logger('Error: #fetchUser ' + 'docRefDocs === null || docRefDocs.length === 0');
                 failed();
                 return;
             }
             done(docRefDocs);
         }).catch((e) => {
             failed();
-            console.log('Error: =>' + e);
+            logger('Error: =>' + e);
         });
     });
 }
@@ -39,13 +39,13 @@ export const fireBaseGetFirstOfAll = (collection: string, done: (any: any) => vo
             const docRefDocs = docRef?.docs;
             if (docRefDocs === null || docRefDocs.length === 0) {
                 done(null);
-                console.log('Error: ' + 'docRefDocs === null || docRefDocs.length === 0 =>' + docRefDocs);
+                logger('Error: ' + 'docRefDocs === null || docRefDocs.length === 0 =>' + docRefDocs);
                 return;
             }
             done(docRefDocs[0]);
         }).catch((e) => {
             failed();
-            console.log('Error: ' + e);
+            logger('Error: ' + e);
         });
     });
 }
@@ -55,14 +55,14 @@ export const fireBaseWhere = (collection: string, filter: any, done: (any: any) 
         firestore(app).collection(collection).where(filter).get().then((docRef) => {
             const docRefDocs = docRef?.docs;
             if (docRefDocs === null || docRefDocs.length === 0) {
-                console.log('Error: #fetchUser ' + 'docRefDocs === null || docRefDocs.length === 0');
+                logger('Error: #fetchUser ' + 'docRefDocs === null || docRefDocs.length === 0');
                 failed();
                 return;
             }
             done(docRefDocs[0]);
         }).catch((e) => {
             failed();
-            console.log('Error: ' + e);
+            logger('Error: ' + e);
         });
     });
 }
@@ -72,14 +72,14 @@ export const fireBaseAllWhere = (collection: string, filter: any, done: (any: an
         firestore(app).collection(collection).where(filter).get().then((docRef) => {
             const docRefDocs = docRef?.docs;
             if (docRefDocs === null || docRefDocs.length === 0) {
-                console.log('Error: #fetchUser ' + 'docRefDocs === null || docRefDocs.length === 0');
+                logger('Error: #fetchUser ' + 'docRefDocs === null || docRefDocs.length === 0');
                 done([]);
                 return;
             }
             done(docRefDocs);
         }).catch((e) => {
             failed();
-            console.log('Error:  =>> ' + e);
+            logger('Error:  =>> ' + e);
         });
     });
 }
@@ -89,14 +89,14 @@ export const fireBaseAllWhereOri = (collection: string, field: string, value: an
         firestore(app).collection(collection).where(field, '==', value).get().then((docRef) => {
             const docRefDocs = docRef?.docs;
             if (docRefDocs === null || docRefDocs.length === 0) {
-                console.log('Error: #fetchUser ' + 'docRefDocs === null || docRefDocs.length === 0');
+                logger('Error: #fetchUser ' + 'docRefDocs === null || docRefDocs.length === 0');
                 done([]);
                 return;
             }
             done(docRefDocs);
         }).catch((e) => {
             failed();
-            console.log('Error: ' + e);
+            logger('Error: ' + e);
         });
     });
 }
@@ -107,7 +107,7 @@ export const fireBaseUpdate = (collection: string, documentId: string, key: stri
             done();
         }).catch((e) => {
             failed();
-            console.log('Error: ' + e);
+            logger('Error: ' + e);
         });
     });
 }
@@ -118,7 +118,7 @@ export const fireBaseSet = (collection: string, documentId: string, map: {}, don
             done();
         }).catch((e) => {
             failed();
-            console.log('Error: ' + e);
+            logger('Error: ' + e);
         });
     });
 }
@@ -129,7 +129,7 @@ export const fireBaseDelete = (collection: string, documentId: string, done: () 
             done();
         }).catch((e) => {
             failed();
-            console.log('Error: ' + e);
+            logger('Error: ' + e);
         });
     });
 }
@@ -152,7 +152,7 @@ export const fetchUser = (uid: string, done: (user: M.UserSack) => void, failed:
     fireBaseWhere(CONST.USER_COLLECTION, firestore.Filter('userAuth', '==', uid.trim()), (oneDoc) => {
         done(M.jsonToUser(oneDoc.data(), oneDoc.id));
     }, () => {
-        console.log('Error: #fetchUser ' + 'oneDoc === null');
+        logger('Error: #fetchUser ' + 'oneDoc === null');
         failed();
     });
 };
@@ -187,9 +187,7 @@ export const fetchForSignIn = (uid: string, done: (user: M.UserSack | M.DoctorSa
         });
     }, () => {
         fetchDoctor(uid, (doctor) => {
-            console.log('Error: #fetchDoctor ' + 'doctor');
             checkPermissionTokenFirst((fcmToken) => {
-                console.log('Error: ' + 'fcmToken');
                 fireBaseUpdate(CONST.DOCTOR_COLLECTION, doctor.doctorDocId, 'fcmToken', fcmToken, () => {
                     var newDoctor = doctor;
                     newDoctor.fcmToken = fcmToken;
@@ -197,7 +195,7 @@ export const fetchForSignIn = (uid: string, done: (user: M.UserSack | M.DoctorSa
                 }, () => failed());
             });
         }, () => {
-            console.log('Error: ' + 'user === null');
+            logger('Error: ' + 'user === null');
             failed();
         });
     });
@@ -251,14 +249,14 @@ export const rejectDoctor = (doctorDocId: string, authId: string, done: () => vo
 
 export const fetchDoctors = (isApproved: boolean, done: (user: M.DoctorSack[]) => void) => {
     fireBaseAllWhere(CONST.DOCTOR_COLLECTION, firestore.Filter('approved', '==', isApproved), (docRefDocs) => {
-        const doctors = docRefDocs.map((docDoc) => { return M.jsonToDoctor(docDoc.data(), docDoc.id); });
+        const doctors = docRefDocs.map((docDoc) => { return M.jsonToDoctor(docDoc.data(), docDoc.id); }).sort((a, b) => a.specialistId > b.specialistId ? 1 : -1);
         done(doctors);
     }, () => done([]));
 };
 
 export const fetchAllDoctors = (isApproved: boolean, done: (user: M.DoctorSack[]) => void, failed: () => void) => {
     fireBaseAllWhere(CONST.DOCTOR_COLLECTION, firestore.Filter('approved', '==', isApproved), (docRefDocs) => {
-        const doctors = docRefDocs.map((docDoc) => { return M.jsonToDoctor(docDoc.data(), docDoc.id); });
+        const doctors = docRefDocs.map((docDoc) => { return M.jsonToDoctor(docDoc.data(), docDoc.id); }).sort((a, b) => a.specialistId > b.specialistId ? 1 : -1);
         done(doctors);
     }, () => done([]));
 };
@@ -273,27 +271,28 @@ export const fetchAdmin = (done: (user: M.UserSack) => void, failed: () => void)
 
 export const fetchExaminationHistory = (doctorID: string, done: (user: M.ExaminationSack[]) => void) => {
     fireBaseAllWhere(CONST.EXAMINATIONS_COLLECTION, firestore.Filter('communicationMethods.doctorID', '==', doctorID.trim()), (examRefDocs) => {
-        const doctors = examRefDocs.map((examDoc) => { return M.jsonToExamination(examDoc.data(), examDoc.id); });
+        const doctors = examRefDocs.map((examDoc) => { return M.jsonToExamination(examDoc.data(), examDoc.id); }).sort((a, b) => a.date > b.date ? 1 : -1);
         done(doctors);
     }, () => done([]));
 };
 
 export const fetchExaminationDocument = (documentId: string, done: (user: M.ExaminationSack) => void, failed: () => void) => {
     fireBaseGet(CONST.EXAMINATIONS_COLLECTION, documentId, (oneDoc) => {
-        done(M.jsonToExamination(oneDoc.data(), oneDoc.id));
+        const a = oneDoc.data();
+        done(M.jsonToExamination(a, documentId));
     }, failed);
 };
 
 export const fetchExaminationHistoryByUser = (key: string, done: (user: M.ExaminationSack[]) => void) => {
     fireBaseAllWhere(CONST.EXAMINATIONS_COLLECTION, firestore.Filter('examinationKey', '==', key.trim()), (examRefDocs) => {
-        const doctors = examRefDocs.map((examDoc) => { return M.jsonToExamination(examDoc.data(), examDoc.id); });
+        const doctors = examRefDocs.map((examDoc) => { return M.jsonToExamination(examDoc.data(), examDoc.id); }).sort((a, b) => a.date > b.date ? 1 : -1);
         done(doctors);
     }, () => done([]));
 };
 
 export const fetchExaminationHistoryForDoctor = (doctorID: string, doctorAccepted: boolean, done: (user: M.ExaminationSack[]) => void) => {
     fireBaseAllWhere(CONST.EXAMINATIONS_COLLECTION, firestore.Filter.and(firestore.Filter('doctorAccepted', '==', doctorAccepted), firestore.Filter('communicationMethods.doctorID', '==', doctorID.trim())), (examRefDocs) => {
-        const doctors = examRefDocs.map((examDoc) => { return M.jsonToExamination(examDoc.data(), examDoc.id); });
+        const doctors = examRefDocs.map((examDoc) => { return M.jsonToExamination(examDoc.data(), examDoc.id); }).sort((a, b) => a.date > b.date ? 1 : -1);
         done(doctors);
     }, () => done([]));
 };
@@ -304,7 +303,7 @@ export const editDoctorSchedule = (doctorDocId: string, appointment: {}, done: (
 
 export const fetchExaminationHistoryForClient = (clientID: string, done: (user: M.ExaminationSack[]) => void) => {
     fireBaseAllWhere(CONST.EXAMINATIONS_COLLECTION, firestore.Filter('communicationMethods.clientID', '==', clientID.trim()), (examRefDocs) => {
-        const doctors = examRefDocs.map((examDoc) => { return M.jsonToExamination(examDoc.data(), examDoc.id); });
+        const doctors = examRefDocs.map((examDoc) => { return M.jsonToExamination(examDoc.data(), examDoc.id); }).sort((a, b) => a.date > b.date ? -1 : 1);
         done(doctors);
     }, () => done([]));
 };
