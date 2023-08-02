@@ -56,7 +56,7 @@ export const ExpendCollapseView = ({ visible, intiWithAnim = false, children }: 
 export const LoadingButton = ({ text, isLoading, style }: { text: string, isLoading: boolean, style: {} }) => {
     return <View style={{ width: '100%', height: '100%', flex: 1, justifyContent: "center", alignItems: "center" }}>
         {
-            !isLoading ? <Text style={style}>{text}</Text> : <ActivityIndicator size="small" color={COL.MAIN} />
+            !isLoading ? <Text style={style}>{text}</Text> : <ActivityIndicator size="small" color={COL.MAIN} style={[{ flex: 1 }]} />
         }
     </View>
 }

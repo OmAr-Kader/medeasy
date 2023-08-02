@@ -5,7 +5,7 @@ import { AddIcon, BackArrow, Delete } from '../../assets/logo';
 import { fetchUserByDocument, fireBaseEditExamination } from '../../firebase/fireStore';
 import { AutoCompleteList, DialogTwoButtonAlert, EditSaveTextInput, FlatListed, ProfilePic } from '../../global/baseView';
 import * as CONST from '../../global/const';
-import { FetchIsDarkMode, navbarHeight } from '../../global/dims';
+import { FetchIsDarkMode } from '../../global/dims';
 import { MedicineSack, jsonToExamination } from '../../global/model';
 import * as COL from '../../global/styles';
 import { appointmentTitle, appointmentTitleForDoctor, convertDateToMonthAndDay, findPref, firstCapital, formatAmPm, pushLocalNotification } from '../../global/utils';
@@ -140,11 +140,10 @@ const AppointmentDoctorScreen = ({ route, navigation }: { route: any, navigation
             msg: `Doctor is calling you as scheduled`,
         }, () => {
             findPref(CONST.USER_ID_AUTH, (auth) => {
-                navigation.navigate(CONST.VIDEO_CALL_SCREEN, { userID: auth, token: CONST.TEMP_TOKEN_1, room: examination.examinationKey, userName: examination.communicationMethods.doctorName })
+                navigation.navigate(CONST.VIDEO_CALL_SCREEN, { userID: '1111', token: CONST.TEMP_TOKEN_1, room: examination.examinationKey, userName: examination.communicationMethods.doctorName })
             }, () => { })
         }, () => pushLocalNotification('Failed', '', false))
     }
-
     const doctorConfirm = () => {
         updateSpinner(true);
         fireBaseEditExamination(examination.documentId, 'doctorAccepted', true, () => {
@@ -633,12 +632,6 @@ const styles = StyleSheet.create({
         paddingTop: 15,
         color: COL.WHITE,
         textTransform: 'capitalize',
-    },
-    bottomContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'absolute',
-        bottom: navbarHeight,
     },
     searchView: {
         width: '100%',

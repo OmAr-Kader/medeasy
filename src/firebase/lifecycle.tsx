@@ -39,7 +39,7 @@ export const checkNewMessage = (isDarkMode: boolean, invoke: (map: any) => void,
         })
         return true;
     });
-    messaging().onMessage(remoteMessage => {
+    return messaging().onMessage(remoteMessage => {
         onForegroundMessage(isDarkMode, remoteMessage, invoke, spinner)
     })
 }

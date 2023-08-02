@@ -22,7 +22,6 @@ export const manualCheck = () => {
         findPrefOrNull('lastMessageId', (value) => {
             isSafeToUse<any>(remoteMessage, (message) => {
                 isSafeToUse<string>(remoteMessage?.messageId, (id) => {
-                    console.log('aaaa' + value !== id);
                     if (value !== id) {
                         updatePref('lastMessageId', id, () => { })
                         handledFromFcm(message)
@@ -130,12 +129,10 @@ export const sendFcmMessage = ({ token, data, tittle, msg }: { token: string, da
     fetch('https://fcm.googleapis.com/fcm/send', requestOptions)
         .then(response => response.text())
         .then(() => {
-            console.log('DONE: sendFcmMessage');
             invoke?.()
         })
         .catch((e) => {
-            console.log('Failed: sendFcmMessage' + e);
-            failed?.()
+            failed !== null ? failed?.() : invoke?.()
         });
 };
 
@@ -163,7 +160,7 @@ export const sendMultiDeviceNotification = (tokens: string[], tittle: string, ms
 
     fetch('https://fcm.googleapis.com/fcm/send', requestOptions)
         .then(response => response.text())
-        .then(result => console.log(result))
-        .catch(error => console.log('error', error));
+        .then(() => {})
+        .catch(() => {});
 };
 

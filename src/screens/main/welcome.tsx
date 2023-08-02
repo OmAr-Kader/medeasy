@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Animated, Dimensions, Image, SafeAreaView, StatusBar, StyleSheet, Text, TouchableHighlight, View, useWindowDimensions } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { FetchIsDarkMode, STATUSBAR_HEIGHT, navbarHeight } from '../../global/dims';
+import { FetchIsDarkMode, STATUSBAR_HEIGHT } from '../../global/dims';
 import { LogoSvg } from '../../assets/logo';
 import * as CONST from '../../global/const';
 import * as COL from '../../global/styles';
@@ -164,8 +164,8 @@ const Welcome = ({ isDarkMode, currentPageState, setChooseType, navigation }: { 
     <TouchableHighlight
       style={styles.bottomButton}
       onPress={() => {
-        setChooseType(true);
-        //navigation.navigate(CONST.LOG_In_ADMIN, { isDark: isDarkMode });
+        //setChooseType(true);
+        navigation.navigate(CONST.LOG_In_ADMIN, { isDark: isDarkMode });
       }}
       underlayColor={COL.MAIN_WHITER}>
       <Text style={styles.textBottom}>Submit</Text>
@@ -254,19 +254,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 24,
     fontWeight: '600',
-  },
-  bottomContainer: {
-    position: 'absolute',
-    bottom: 0,
-    marginBottom: 50 + navbarHeight,
-    flexDirection: 'column',
-    alignItems: 'center',
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    elevation: 10,
-    marginTop: 250,
-    shadowColor: COL.WHITE,
-    backgroundColor: COL.BLACK_55,
   },
   bottomButton: {
     width: 150,

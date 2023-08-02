@@ -1,5 +1,5 @@
 import notifee, { AuthorizationStatus, AndroidImportance, AndroidVisibility, AndroidCategory, AndroidFlags, IOSIntentIdentifier, TriggerType, EventType, Notification, EventDetail } from '@notifee/react-native';
-import { isAllSafeToUse, isSafeToUse, pushLocalNotification, updateMuliPref } from "../global/utils";
+import { isAllSafeToUse, isSafeToUse, logger, pushLocalNotification, updateMuliPref } from "../global/utils";
 import * as CONST from "../global/const";
 import { Platform } from "react-native";
 import { MAIN } from "../global/styles";
@@ -160,42 +160,46 @@ export const scheduleNotification = ({ title, msg, type, navigator: navigator, i
         },
     );
     const record = { type: type, data: id, navigator: navigator };
-    notifee.createTriggerNotification({
-        id: CONST.NOTIFY_COMMUNICATION,
-        title: title,
-        body: msg,
-        data: record,
-        android: {
-            lightUpScreen: true,
-            autoCancel: false,
-            category: AndroidCategory.SOCIAL,
-            color: MAIN,
-            colorized: true,
-            ongoing: true,
-            loopSound: false,
-            flags: [AndroidFlags.FLAG_INSISTENT, AndroidFlags.FLAG_NO_CLEAR],
-            onlyAlertOnce: true,
-            importance: AndroidImportance.DEFAULT,
-            visibility: AndroidVisibility.PUBLIC,
-            sound: 'default',
-            channelId: 'knock-id',
-        },
-        ios: {
-            sound: 'default',
-            interruptionLevel: 'active',
-            critical: true,
-            criticalVolume: 0.9,
-            foregroundPresentationOptions: {
-                badge: true,
-                sound: true,
-                banner: true,
-                list: true,
+    try {
+        notifee.createTriggerNotification({
+            id: CONST.NOTIFY_COMMUNICATION,
+            title: title,
+            body: msg,
+            data: record,
+            android: {
+                lightUpScreen: true,
+                autoCancel: true,
+                category: AndroidCategory.SOCIAL,
+                color: MAIN,
+                colorized: true,
+                ongoing: true,
+                loopSound: false,
+                flags: [AndroidFlags.FLAG_INSISTENT, AndroidFlags.FLAG_NO_CLEAR],
+                onlyAlertOnce: true,
+                importance: AndroidImportance.DEFAULT,
+                visibility: AndroidVisibility.PUBLIC,
+                sound: 'default',
+                channelId: 'knock-id',
             },
-        }
-    }, {
-        type: TriggerType.TIMESTAMP,
-        timestamp: new Date(time - (hasteMinutes * 60 * 1000)).getTime()
-    });
+            ios: {
+                sound: 'default',
+                interruptionLevel: 'active',
+                critical: true,
+                criticalVolume: 0.9,
+                foregroundPresentationOptions: {
+                    badge: true,
+                    sound: true,
+                    banner: true,
+                    list: true,
+                },
+            }
+        }, {
+            type: TriggerType.TIMESTAMP,
+            timestamp: new Date(time - (hasteMinutes * 60 * 1000)).getTime()
+        });
+    } catch(e) {
+        logger('time' + time)
+    }
 };
 
 export const displayOngoingNotification = ({ notId, title, msg, answered, record }: { notId: string, title: string, msg: string, answered: boolean, record: {} }) => {
@@ -313,7 +317,7 @@ export const popUpOngoingNotification = ({ notId, channelId, data, title, msg, a
 
         android: {
             lightUpScreen: !answered,
-            autoCancel: false,
+            autoCancel: true,
             category: AndroidCategory.CALL,
             color: MAIN,
             colorized: true,

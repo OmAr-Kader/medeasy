@@ -1,7 +1,7 @@
 import React from 'react';
 import { EmitterSubscription, NativeEventEmitter, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableHighlight, View } from 'react-native';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
-import { FetchIsDarkMode, navbarHeight } from '../../global/dims';
+import { FetchIsDarkMode } from '../../global/dims';
 import { BackArrow, CertificateView, DonePending } from '../../assets/logo';
 import * as COL from '../../global/styles';
 import { AppointmentDoctor, AppointmentSack, ExaminationSack, createCommunicationSack, createExaminationSack, jsonToAppointmentSack, jsonToDoctor } from '../../global/model';
@@ -350,7 +350,7 @@ function recyclerChild(value: AppointmentSack, isDarkMode: boolean, selectedStat
 
   const stylesColorMain = COL.stylesColorMain(isDarkMode)
   return <View style={styles.mainAppContainer}>
-    <Text style={COL.stylesColorMain(isDarkMode).screenTittle}>{CONST.DAYS_FOR_PICKER[value.dayId].name}</Text>
+    <Text style={stylesColorful(isDarkMode).doctorNameStyle}>{CONST.DAYS_FOR_PICKER[value.dayId].name}</Text>
     <TagSelectOne
       data={dates}
       onChange={(selectedItem: ICheckboxButton) => {
@@ -453,6 +453,8 @@ const stylesColorful = (isDark: boolean) => {
       alignItems: 'center',
     },
     joinButton: {
+      width: 150,
+      height: 50,
       backgroundColor: COL.GREEN_CALL,
       borderRadius: 10,
       elevation: 10,

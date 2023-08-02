@@ -73,12 +73,13 @@ const DoctorHome = ({ isDarkMode, doctor, togglePos, navigation }: { isDarkMode:
     }, () => {
       updateSpinner(false);
     });
-    checkNewMessage(isDarkMode, (map) => {
+    const uns = checkNewMessage(isDarkMode, (map) => {
       updateSpinner(false)
       navigation.navigate(map.navigatorTag, map.data);
     }, (bool) => updateSpinner(bool))
     return () => {
       clearEmitter()
+      uns()
     }
   }, []);
 
@@ -270,7 +271,7 @@ function recyclerChildExamination(value: ExaminationSack, isDarkMode: boolean, p
           <ProfilePic style={COL.stylesMain.profilePic} uri={value.communicationMethods.clientImg} />
         </View>
         <View style={COL.stylesMain.flatListDetailsContainer}>
-          <Text style={[COL.stylesColorMain(isDarkMode).screenTittle, { marginTop: 10 }]}>{firstCapital(tittle)}</Text>
+          <Text style={COL.stylesColorMain(isDarkMode).flatListTittle}>{firstCapital(tittle)}</Text>
           <View style={COL.stylesMain.subFlatListDetails}>
             <Text style={COL.stylesMain.flatListSubTittle}>{value.clientNote}</Text>
             <View style={COL.stylesMain.flatListDetailsIcon}>

@@ -71,7 +71,7 @@ const AppointmentScreen = ({ route, navigation }: { route: any, navigation: any 
         fireBaseCreateExamination(newExam, newAp, (documentId) => {
             sendFcmMessage({
                 token: examination.communicationMethods.doctorFcmToken,
-                data: { id: documentId, navigator: CONST.APPOINTMENT_SCREEN_DOCTOR, type: CONST.FCM_NEW_APPOINTMENT_FOR_DOCTOR },
+                data: { id: documentId, navigator: CONST.APPOINTMENT_SCREEN, type: CONST.FCM_NEW_APPOINTMENT_FOR_DOCTOR },
                 tittle: 'New Appointment',
                 msg: 'From:' + appointmentTitleForDoctor(examination),
             });

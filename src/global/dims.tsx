@@ -3,16 +3,18 @@ import { ScaledSize } from 'react-native/Libraries/Utilities/Dimensions';
 
 const { StatusBarManager } = NativeModules;
 
+
+export const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBarManager.HEIGHT;
+
+export const FetchIsDarkMode = () => useColorScheme() === 'dark';
+/*
 export const screenHeight = Dimensions.get('screen').height;
 export const windowHeight = Dimensions.get('window').height;
 export const windowWidth = Dimensions.get('window').width;
-
-export const STATUSBAR_HEIGHT = Platform.OS === 'ios' ? 20 : StatusBarManager.HEIGHT;
 export const navbarHeight = screenHeight - (windowHeight + (Platform.OS === 'ios' ? 20 : StatusBarManager.HEIGHT));
 
-export const FetchIsDarkMode = () => useColorScheme() === 'dark';
 export const initialNumToRender = (itemHeight: number) => screenHeight / itemHeight;
-/*
+
 const msp = (dim: ScaledSize, limit: number) => {
     return dim.scale * dim.width >= limit || dim.scale * dim.height >= limit;
 };

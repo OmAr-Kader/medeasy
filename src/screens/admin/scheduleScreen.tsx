@@ -1,5 +1,5 @@
 import { SafeAreaView } from "react-native-safe-area-context"
-import { FetchIsDarkMode, navbarHeight } from "../../global/dims";
+import { FetchIsDarkMode } from "../../global/dims";
 import React from "react";
 import { ScrollView, StatusBar, StyleSheet, Text, TouchableHighlight, View } from "react-native";
 import * as COL from '../../global/styles';
@@ -541,12 +541,6 @@ const styles = StyleSheet.create({
         paddingTop: 15,
         color: COL.WHITE,
         textTransform: 'capitalize',
-    },
-    bottomContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'absolute',
-        bottom: navbarHeight,
     },
     searchView: {
         width: '100%',

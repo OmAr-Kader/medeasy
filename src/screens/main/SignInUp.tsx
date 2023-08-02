@@ -7,7 +7,7 @@ import {
   Image,
 } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { FetchIsDarkMode, navbarHeight } from '../../global/dims';
+import { FetchIsDarkMode } from '../../global/dims';
 import { HiddenUnhidden, LogoSvg } from '../../assets/logo';
 import React from 'react';
 import * as CONST from '../../global/const';
@@ -198,7 +198,6 @@ const SignScreen = ({ route, navigation }: { route: any, navigation: any }) => {
     checkForSignUp(true, () => {
       updateSpinner(true);
       signUpWithGoogle(state.personalImg ? state.personalImg : '', (user) => {
-        updateSpinner(false);
         checkPermissionTokenFirst((fcmToken) => {
           const newUser = returnNewUserFromGoogle(user, fcmToken);
           navigateAfterSignUpGoogle(newUser);
@@ -212,7 +211,6 @@ const SignScreen = ({ route, navigation }: { route: any, navigation: any }) => {
 
   const navigateAfterSignUpGoogle = (newUser: UserSack | DoctorSack) => {
     fireBaseCreateUser(newUser, () => {
-      updateSpinner(false);
       if (newUser instanceof DoctorSack) {
         fetchAdmin((admin) => {
           sendFcmMessage({
@@ -235,6 +233,7 @@ const SignScreen = ({ route, navigation }: { route: any, navigation: any }) => {
         navigation.navigate(CONST.HOME_SCREEN_USER, { data: newUser.asJsonAll(), togglePos: 1, isDark: isDarkMode });
       }
     }, () => {
+      //deleteAuth
       updateSpinner(false);
       pushLocalNotification('Something went wrong!', '', false);
     });
@@ -535,7 +534,6 @@ const SignScreen = ({ route, navigation }: { route: any, navigation: any }) => {
           onPress={() => dispatch({ isSignUp: !state.isSignUp })}>
           <FetchTextFor isSignUp={state.isSignUp} isDarkMode={isDarkMode} />
         </TouchableHighlight>
-        <View style={{ height: navbarHeight }} />
       </View>
     </View>
   } />;
@@ -678,12 +676,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     textTransform: 'capitalize',
   },
-  bottomContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'absolute',
-    bottom: navbarHeight,
-  },
   bottomSignGoogle: {
     width: 275,
     height: 48,
@@ -701,7 +693,7 @@ const styles = StyleSheet.create({
   styleForAlready: {
     padding: 10,
     borderRadius: 7,
-    marginBottom: 10,
+    marginBottom: 50,
   },
   signGoogleCont: {
     width: 275,
@@ -792,11 +784,6 @@ const styleEye = (hideEye: boolean) => {
 
 const stylesColorful = (isDark: boolean) => {
   return StyleSheet.create({
-    backgroundStyle: {
-      backgroundColor: isDark ? COL.BACK_DARK : COL.BACK_LIGHT,
-      width: '100%',
-      height: '100%',
-    },
     logContainer: {
       flexDirection: 'column',
       alignItems: 'center',
@@ -813,12 +800,6 @@ const stylesColorful = (isDark: boolean) => {
       marginTop: 15,
       color: isDark ? COL.WHITE : COL.BLACK,
     },
-    selectContainer: {
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginTop: 20,
-      flex: 0,
-    },
     textInputContainer: {
       width: 277,
       height: 63,
@@ -831,11 +812,6 @@ const stylesColorful = (isDark: boolean) => {
       marginTop: 20,
       flex: 0,
       flexDirection: 'row',
-    },
-    boxTextStyle: {
-      fontFamily: 'JosefinSans-Regular',
-      textDecorationLine: 'none',
-      color: isDark ? COL.WHITE : COL.BLACK,
     },
     alreadyButton: {
       fontWeight: '900',

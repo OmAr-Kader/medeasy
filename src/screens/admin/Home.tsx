@@ -57,11 +57,13 @@ const HomeAdminScreen = ({ route, navigation }: { route: any, navigation: any })
             }, () => {
                 updateSpinner(false);
             });
-            checkNewMessage(isDarkMode, (map) => {
-                updateSpinner(false)
-                navigation.navigate(map.navigatorTag, map.data);
-            }, (bool) => updateSpinner(bool))
         });
+        const uns = checkNewMessage(isDarkMode, (map) => {
+            navigation.navigate(map.navigatorTag, map.data);
+        }, (bool) => updateSpinner(bool))
+        return () => {
+            uns()
+        }
     }, []);
 
     const renderItem = ({ item }: { item: DoctorSack }) => {
@@ -178,7 +180,7 @@ function recyclerChild(data: DoctorSack, isDarkMode: boolean, press: () => void)
                     <ProfilePic style={COL.stylesMain.profilePic} uri={data.personalImage} />
                 </View>
                 <View style={COL.stylesMain.flatListDetailsContainer}>
-                    <Text style={[COL.stylesColorMain(isDarkMode).screenTittle, { marginTop: 10 }]}>{firstCapital(data.nameDoc)}</Text>
+                    <Text style={COL.stylesColorMain(isDarkMode).flatListTittle}>{firstCapital(data.nameDoc)}</Text>
                     <View style={COL.stylesMain.subFlatListDetails}>
                         <Text style={COL.stylesMain.flatListSubTittle}>{data.specialistDoc}</Text>
                         <View style={COL.stylesMain.flatListDetailsIcon}>

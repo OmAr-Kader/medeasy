@@ -56,36 +56,28 @@ const HomeScreen = ({ route, navigation }: { route: any, navigation: any }) => {
     if (state.toggle === toggleItems[0]) {
       updateSpinner(true);
       fetchExaminationHistoryForClient(userSack.userDocumentID, (allDoctors) => {
-        dispatch({ originalItems: allDoctors, items: allDoctors })
-        checkForIntent(isDarkMode, (map: any,) => {
-          updateSpinner(false);
-          if (data instanceof ExaminationSack) {
-            navigation.navigate(map.navigatorTag, { isDark: isDarkMode, data: map.data, modeApp: CONST.EDIT_SAVE_EDITABLE_INTI_NOT, newAp: [], userName: userSack.nameUser, profilePic: userSack.personalImage });
-          } else {
-            navigation.navigate(CONST.VIDEO_CALL_SCREEN, { room: map.data.room, tokenOther: map.data.tokenOther, userID: userSack.userAuthID, userName: userSack.nameUser })
-          }
-        }, () => {
-          updateSpinner(false);
-        })
+        dispatch({ originalItems: allDoctors, items: allDoctors, spinner: false })
       });
     } else {
       updateSpinner(true);
       fetchDoctors(true, (allDoctors) => {
-        dispatch({ originalItems: allDoctors, items: allDoctors })
-        checkForIntent(isDarkMode, (map: any) => {
-          updateSpinner(false);
-          navigation.navigate(map.navigatorTag, map.data);
-        }, () => {
-          updateSpinner(false);
-        });
+        dispatch({ originalItems: allDoctors, items: allDoctors, spinner: false })
       });
     }
-    checkNewMessage(isDarkMode, (map) => {
+
+    checkForIntent(isDarkMode, (map: any) => {
+      updateSpinner(false);
+      navigation.navigate(map.navigatorTag, map.data);
+    }, () => {
+      updateSpinner(false);
+    })
+    const uns = checkNewMessage(isDarkMode, (map) => {
       updateSpinner(false)
       navigation.navigate(map.navigatorTag, map.data);
     }, (bool) => updateSpinner(bool))
     return () => {
       clearEmitter()
+      uns()
     }
   }, []);
 
@@ -261,7 +253,7 @@ function recyclerChildExamination(value: ExaminationSack, isDarkMode: boolean, p
           <ProfilePic style={COL.stylesMain.profilePic} uri={value.communicationMethods.doctorImg} />
         </View>
         <View style={COL.stylesMain.flatListDetailsContainer}>
-          <Text style={[COL.stylesColorMain(isDarkMode).screenTittle, { marginTop: 10 }]}>{firstCapital(tittle)}</Text>
+          <Text style={COL.stylesColorMain(isDarkMode).flatListTittle}>{firstCapital(tittle)}</Text>
           <View style={COL.stylesMain.subFlatListDetails}>
             <Text style={COL.stylesMain.flatListSubTittle}>{value.clientNote}</Text>
             <View style={COL.stylesMain.flatListDetailsIcon}>
@@ -288,7 +280,7 @@ function recyclerChild(data: DoctorSack, isDarkMode: boolean, press: () => void)
           <ProfilePic style={COL.stylesMain.profilePic} uri={data.personalImage} />
         </View>
         <View style={COL.stylesMain.flatListDetailsContainer}>
-          <Text style={[COL.stylesColorMain(isDarkMode).screenTittle, { marginTop: 10 }]}>{firstCapital(data.nameDoc)}</Text>
+          <Text style={COL.stylesColorMain(isDarkMode).flatListTittle}>{firstCapital(data.nameDoc)}</Text>
           <View style={COL.stylesMain.subFlatListDetails}>
             <Text style={COL.stylesMain.flatListSubTittle}>{data.specialistDoc}</Text>
             <View style={COL.stylesMain.flatListDetailsIcon}>

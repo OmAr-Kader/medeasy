@@ -274,7 +274,7 @@ function recyclerChildExamination(value: ExaminationSack, isDarkMode: boolean, p
             uri={value.communicationMethods.clientImg} />
         </View>
         <View style={COL.stylesMain.flatListDetailsContainer}>
-          <Text style={[COL.stylesColorMain(isDarkMode).screenTittle, { marginTop: 10 }]}>{firstCapital(tittle)}</Text>
+          <Text style={COL.stylesColorMain(isDarkMode).flatListTittle}>{firstCapital(tittle)}</Text>
           <View style={COL.stylesMain.subFlatListDetails}>
             <Text style={COL.stylesMain.flatListSubTittle}>{value.clientNote}</Text>
             <View style={COL.stylesMain.flatListDetailsIcon}>

@@ -7,7 +7,7 @@ import {
     Image,
 } from 'react-native';
 import Spinner from 'react-native-loading-spinner-overlay';
-import { FetchIsDarkMode, navbarHeight } from '../../global/dims';
+import { FetchIsDarkMode } from '../../global/dims';
 import { HiddenUnhidden, LogoSvg } from '../../assets/logo';
 import React, { useRef } from 'react';
 import { HOME_SCREEN_ADMAN } from '../../global/const';
@@ -154,6 +154,7 @@ const SignScreenAdmin = ({ route, navigation }: { route: any, navigation: any })
             updateSpinner(false);
             navigation.navigate(HOME_SCREEN_ADMAN, { data: newUser.asJsonAll(), togglePos: 1, isDark: isDarkMode });
         }, () => {
+            //deleteAuth
             updateSpinner(false);
             pushLocalNotification('Something went wrong!', '', false);
         });
@@ -344,7 +345,6 @@ const SignScreenAdmin = ({ route, navigation }: { route: any, navigation: any })
                     onPress={() => dispatch({ isSignUp: !state.isSignUp })}>
                     <FetchTextFor isSignUp={state.isSignUp} isDarkMode={isDarkMode} />
                 </TouchableHighlight>
-                <View style={{ height: navbarHeight }} />
             </View>
         </View>
     } />;
@@ -481,12 +481,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         textTransform: 'capitalize',
     },
-    bottomContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'absolute',
-        bottom: navbarHeight,
-    },
     bottomSignGoogle: {
         width: 275,
         height: 48,
@@ -496,7 +490,6 @@ const styles = StyleSheet.create({
         marginTop: 40,
         marginBottom: 20,
         shadowColor: COL.MAIN_WHITER,
-
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
@@ -504,7 +497,7 @@ const styles = StyleSheet.create({
     styleForAlready: {
         padding: 10,
         borderRadius: 7,
-        marginBottom: 10,
+        marginBottom: 50,
     },
     signGoogleCont: {
         width: 275,
