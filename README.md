@@ -27,4 +27,4 @@ The main purpose of Medeasy app :
 
 ## Screen Records
 
-https://github.com/OmAr-Kader/medeasy/assets/137582672/f64ca97f-00a2-4fd9-b101-5d14b75f965b
+https://github.com/OmAr-Kader/medeasy/assets/137582672/de7a3823-e402-4e2a-a297-03e1729dfa00
