@@ -1,6 +1,6 @@
 # Medeasy
 
-An application that connects doctors (head manager) with healthcare partners
+Healthcare application that connects doctors (and head manager) with healthcare partners
 
 The main purpose of Medeasy app :
 - Organizing medical appointments 
