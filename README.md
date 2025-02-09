@@ -9,6 +9,12 @@ The main purpose of Medeasy app :
 - Communication between doctors and healthcare partners through Video calls
 - Giving the head managers the ability to change doctors' shifts and review doctors applying for the job
 
+## 🤩 Support Me
+
+<a href="https://www.buymeacoffee.com/omar_kader">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-red.png" width="200" height="70" alt="Buy Me a Coffee">
+</a>
+
 [- Authentication](https://www.npmjs.com/package/@react-native-firebase/auth)  
 [- Firestore Database](https://www.npmjs.com/package/@react-native-firebase/firestore)  
 [- FCM For Messaging](https://www.npmjs.com/package/@react-native-firebase/messaging)  
