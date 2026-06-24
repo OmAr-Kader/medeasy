@@ -58,7 +58,7 @@
     "zego-express-engine-reactnative": "^3.2.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.22.9",
+    "@babel/core": "^7.29.6",
     "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
     "@babel/preset-env": "^7.22.9",
     "@babel/runtime": "^7.27.0",
